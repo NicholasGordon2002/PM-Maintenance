@@ -65,7 +65,7 @@ async function loadFromGoogleSheets() {
         if (response.ok) {
             const data = await response.json();
             maintenanceData = data.maintenance || [];
-            financialData = data.summary || [];   // ← WRONG
+            financialData = data.summary || {};
             unitsData = data.units || [];
             updateConnectionStatus(true);
         } else {
