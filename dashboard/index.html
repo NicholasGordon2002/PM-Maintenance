@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rest Easy — Property Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard">
+        <header class="dashboard-header">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" rx="8" fill="#2563EB"/>
+                    <path d="M8 20V12L16 8L24 12V20L16 24L8 20Z" fill="white" fill-opacity="0.9"/>
+                    <path d="M16 8V24M8 12L24 20M24 12L8 20" stroke="white" stroke-width="1.5" stroke-opacity="0.4"/>
+                </svg>
+                <span>Rest Easy</span>
+            </div>
+            <div class="header-actions">
+                <span class="property-name">Maple Ridge Apartments</span>
+                <button class="btn-icon" onclick="refreshData()" title="Refresh">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 4v6h-6M1 20v-6h6"/>
+                        <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                    </svg>
+                </button>
+                <button class="btn-icon" onclick="openSettings()" title="Settings">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab active" data-tab="maintenance">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+                </svg>
+                Maintenance Inbox
+            </button>
+            <button class="tab" data-tab="financial">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="1" x2="12" y2="23"/>
+                    <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                </svg>
+                Financial Summary
+            </button>
+        </nav>
+
+        <main class="dashboard-content">
+            <!-- Maintenance Tab -->
+            <section id="maintenance-view" class="tab-content active">
+                <div class="view-header">
+                    <h2>Maintenance Requests</h2>
+                    <div class="filters">
+                        <select id="status-filter" onchange="filterMaintenance()">
+                            <option value="">All Statuses</option>
+                            <option value="New">New</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Pending Parts">Pending Parts</option>
+                            <option value="Resolved">Resolved</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                        <select id="urgency-filter" onchange="filterMaintenance()">
+                            <option value="">All Urgencies</option>
+                            <option value="Emergency">Emergency</option>
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-card emergency">
+                        <span class="stat-value" id="emergency-count">0</span>
+                        <span class="stat-label">Emergency</span>
+                    </div>
+                    <div class="stat-card high">
+                        <span class="stat-value" id="high-count">0</span>
+                        <span class="stat-label">High</span>
+                    </div>
+                    <div class="stat-card open">
+                        <span class="stat-value" id="open-count">0</span>
+                        <span class="stat-label">Open</span>
+                    </div>
+                    <div class="stat-card resolved">
+                        <span class="stat-value" id="resolved-count">0</span>
+                        <span class="stat-label">Resolved This Month</span>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="maintenance-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Unit</th>
+                                <th>Category</th>
+                                <th>Urgency</th>
+                                <th>Status</th>
+                                <th>Description</th>
+                                <th>Tenant</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="maintenance-tbody">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Financial Tab -->
+            <section id="financial-view" class="tab-content">
+                <div class="view-header">
+                    <h2>Financial Summary</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" onclick="exportCSV()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Export CSV
+                        </button>
+                    </div>
+                </div>
+
+                <div class="financial-grid">
+                    <div class="financial-card rent-card">
+                        <h3>Rent Collection</h3>
+                        <div class="metric">
+                            <span class="metric-label">Expected This Month</span>
+                            <span class="metric-value" id="rent-expected">$0</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Collected</span>
+                            <span class="metric-value success" id="rent-collected">$0</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Outstanding</span>
+                            <span class="metric-value danger" id="rent-outstanding">$0</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Collection Rate</span>
+                            <span class="metric-value" id="collection-rate">0%</span>
+                        </div>
+                    </div>
+
+                    <div class="financial-card income-card">
+                        <h3>Income & Expenses</h3>
+                        <div class="metric">
+                            <span class="metric-label">Total Income (Month)</span>
+                            <span class="metric-value success" id="month-income">$0</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Total Expenses (Month)</span>
+                            <span class="metric-value danger" id="month-expenses">$0</span>
+                        </div>
+                        <div class="metric highlight">
+                            <span class="metric-label">Net Cash Flow</span>
+                            <span class="metric-value" id="net-cashflow">$0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="units-breakdown">
+                    <h3>By Unit</h3>
+                    <table class="units-table">
+                        <thead>
+                            <tr>
+                                <th>Unit</th>
+                                <th>Tenant</th>
+                                <th>Monthly Rent</th>
+                                <th>Collected</th>
+                                <th>Outstanding</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="units-tbody">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="maintenance-summary">
+                    <h3>Maintenance Summary</h3>
+                    <div class="summary-stats">
+                        <div class="summary-item">
+                            <span class="summary-value" id="open-requests">0</span>
+                            <span class="summary-label">Open Requests</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-value" id="resolved-month">0</span>
+                            <span class="summary-label">Resolved This Month</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="dashboard-footer">
+            <span>Last updated: <span id="last-updated">—</span></span>
+            <span class="connection-status" id="connection-status">
+                <span class="status-dot"></span>
+                <span class="status-text">Demo Mode</span>
+            </span>
+        </footer>
+    </div>
+
+    <!-- Maintenance Request Modal -->
+    <div id="maintenance-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Update Request</h3>
+                <button class="btn-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="maintenance-form" onsubmit="saveMaintenanceUpdate(event)">
+                <input type="hidden" id="request-id">
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="request-status" required>
+                        <option value="New">New</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Pending Parts">Pending Parts</option>
+                        <option value="Resolved">Resolved</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Landlord Notes</label>
+                    <textarea id="landlord-notes" rows="4" placeholder="Add notes about this request..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Settings</h3>
+                <button class="btn-close" onclick="closeSettings()">&times;</button>
+            </div>
+            <form id="settings-form" onsubmit="saveSettings(event)">
+                <div class="form-group">
+                    <label>Google Apps Script URL</label>
+                    <input type="text" id="script-url" placeholder="https://script.google.com/...">
+                    <small>Leave empty to use demo data</small>
+                </div>
+                <div class="form-group">
+                    <label>Property Name</label>
+                    <input type="text" id="property-name" value="Maple Ridge Apartments">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeSettings()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
