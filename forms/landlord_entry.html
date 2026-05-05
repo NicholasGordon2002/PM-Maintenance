@@ -5,145 +5,141 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financial Entry - Rest Easy</title>
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f4f8; color: #333; display: flex; justify-content: center; padding: 20px; min-height: 100vh; align-items: center; }
-        .container { background: #fff; padding: 32px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); max-width: 520px; width: 100%; border-top: 5px solid #059669; }
-        .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; font-size: 1.1rem; font-weight: 700; color: #059669; }
-        .logo svg { width: 32px; height: 32px; }
-        h1 { font-size: 1.4rem; margin-bottom: 6px; color: #1e293b; }
-        .subtitle { font-size: 0.875rem; color: #64748b; margin-bottom: 24px; }
-        .info-box { background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 6px; padding: 12px 14px; font-size: 0.875rem; color: #065f46; margin-bottom: 20px; }
-        .info-box strong { display: block; margin-bottom: 2px; }
-        .form-group { margin-bottom: 16px; }
-        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.875rem; color: #374151; }
-        input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem; transition: border-color 0.15s; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f4f8; color: #333; display: flex; justify-content: center; padding: 24px; min-height: 100vh; align-items: center; }
+        .card { background: #fff; padding: 32px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); max-width: 520px; width: 100%; border-top: 5px solid #059669; }
+        .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: 1rem; font-weight: 700; color: #059669; }
+        .logo svg { width: 28px; height: 28px; flex-shrink: 0; }
+        h1 { font-size: 1.4rem; color: #1e293b; margin-bottom: 4px; }
+        .sub { font-size: 0.875rem; color: #64748b; margin-bottom: 20px; }
+        .info { background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 6px; padding: 12px; font-size: 0.875rem; color: #065f46; margin-bottom: 20px; }
+        .info strong { display: block; margin-bottom: 2px; }
+        .form-group { margin-bottom: 14px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.875rem; color: #374151; }
+        input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem; font-family: inherit; }
         input:focus, select:focus, textarea:focus { outline: none; border-color: #059669; box-shadow: 0 0 0 3px rgba(5,150,105,0.1); }
-        textarea { height: 80px; resize: vertical; }
-        .btn { background: #059669; color: white; padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-size: 1rem; font-weight: 600; margin-top: 8px; transition: background 0.15s; }
+        textarea { height: 70px; resize: vertical; }
+        .hint { font-size: 0.8rem; color: #64748b; margin-top: 3px; }
+        .btn { background: #059669; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-size: 1rem; font-weight: 600; margin-top: 8px; }
         .btn:hover { background: #047857; }
         .btn:disabled { background: #9ca3af; cursor: not-allowed; }
-        .success-msg { display: none; background: #ecfdf5; border: 1px solid #10b981; border-radius: 6px; padding: 24px; color: #065f46; font-size: 1rem; text-align: center; }
-        .success-msg h3 { font-size: 1.2rem; margin-bottom: 8px; }
+        .success { display: none; background: #ecfdf5; border: 1px solid #10b981; border-radius: 8px; padding: 28px; text-align: center; color: #065f46; }
+        .success h2 { font-size: 1.2rem; margin-bottom: 8px; }
+        .success p { margin-bottom: 16px; }
+        .success a { display: inline-block; background: #059669; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; }
         .required { color: #dc2626; }
-        .amount-hint { font-size: 0.8rem; color: #64748b; margin-top: 4px; }
-        @media (max-width: 480px) { .container { padding: 20px; } }
+        @media (max-width: 480px) { .card { padding: 20px; } }
     </style>
 </head>
 <body>
-    <div class="container" id="form-container">
+    <div class="card" id="form-card">
         <div class="logo">
             <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#059669"/><path d="M8 20V12L16 8L24 12V20L16 24L8 20Z" fill="white" fill-opacity="0.9"/><path d="M16 8V24M8 12L24 20M24 12L8 20" stroke="white" stroke-width="1.5" stroke-opacity="0.4"/></svg>
             Rest Easy — Landlord Portal
         </div>
         <h1>Financial Entry</h1>
-        <p class="subtitle">Record income or expenses for this property.</p>
-        <div class="info-box">
-            <strong>Enter positive amounts for income (e.g., rent received).</strong>
-            Use negative amounts for expenses (e.g., -150 for a $150 repair).
+        <p class="sub">Record income or expenses for this property.</p>
+        <div class="info">
+            <strong>Positive amounts = income</strong> (e.g., rent received)<br>
+            <strong>Negative amounts = expenses</strong> (e.g., -150 for a $150 repair)
         </div>
-        <form id="financialForm">
+
+        <form id="form" novalidate>
             <input type="hidden" name="formType" value="financial">
 
-            <div class="form-group">
-                <label for="date">Date <span class="required">*</span></label>
-                <input type="date" id="date" name="date" required>
+            <div class="row" style="display:flex;gap:12px;">
+                <div style="flex:1">
+                    <div class="form-group">
+                        <label>Date <span class="required">*</span></label>
+                        <input type="date" name="date" required>
+                    </div>
+                </div>
+                <div style="flex:1">
+                    <div class="form-group">
+                        <label>Type <span class="required">*</span></label>
+                        <select name="type" required>
+                            <option>Rent Payment</option><option>Expense</option><option>Deposit</option><option>Refund</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
             <div class="form-group">
-                <label for="type">Transaction Type <span class="required">*</span></label>
-                <select name="type" id="type" required>
-                    <option value="Rent Payment">Rent Payment</option>
-                    <option value="Expense">Expense</option>
-                    <option value="Deposit">Security Deposit</option>
-                    <option value="Refund">Refund</option>
+                <label>Unit / Building <span class="required">*</span></label>
+                <select name="unitNumber" required>
+                    <option>All</option><option>Unit 1</option><option>Unit 2</option><option>Unit 3</option><option>Unit 4</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label for="unitNumber">Unit / Building <span class="required">*</span></label>
-                <select name="unitNumber" id="unitNumber" required>
-                    <option value="All">All Units (building-wide)</option>
-                    <option value="Unit 1">Unit 1</option>
-                    <option value="Unit 2">Unit 2</option>
-                    <option value="Unit 3">Unit 3</option>
-                    <option value="Unit 4">Unit 4</option>
+                <label>Amount ($) <span class="required">*</span></label>
+                <input type="number" name="amount" step="0.01" required placeholder="0.00">
+                <p class="hint">No $ sign. Positive = income, negative = expense.</p>
+            </div>
+
+            <div class="form-group">
+                <label>Description <span class="required">*</span></label>
+                <input type="text" name="description" required placeholder="e.g. March Rent or Plumbing repair">
+            </div>
+
+            <div class="form-group">
+                <label>Category <span class="required">*</span></label>
+                <select name="category" required>
+                    <option>Rent</option><option>Maintenance</option><option>Utilities</option><option>Insurance</option><option>Taxes</option><option>Management Fee</option><option>Other</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label for="amount">Amount ($) <span class="required">*</span></label>
-                <input type="number" id="amount" name="amount" step="0.01" required placeholder="0.00">
-                <p class="amount-hint">Positive for income, negative for expenses. Do not include a $ sign.</p>
+                <label>Notes</label>
+                <textarea name="notes" placeholder="Any additional details..."></textarea>
             </div>
 
-            <div class="form-group">
-                <label for="description">Description <span class="required">*</span></label>
-                <input type="text" id="description" name="description" required placeholder="e.g. March Rent or HVAC repair">
-            </div>
-
-            <div class="form-group">
-                <label for="category">Category <span class="required">*</span></label>
-                <select name="category" id="category" required>
-                    <option value="Rent">Rent</option>
-                    <option value="Maintenance">Maintenance / Repairs</option>
-                    <option value="Utilities">Utilities</option>
-                    <option value="Insurance">Insurance</option>
-                    <option value="Taxes">Taxes</option>
-                    <option value="Management Fee">Management Fee</option>
-                    <option value="Other">Other</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="notes">Notes</label>
-                <textarea id="notes" name="notes" placeholder="Any additional reference or notes..."></textarea>
-            </div>
-
-            <button type="submit" class="btn" id="submitBtn">Record Transaction</button>
+            <button type="submit" class="btn" id="submit-btn">Record Transaction</button>
         </form>
     </div>
 
-    <div class="container" id="success-container" style="display:none;">
-        <div class="success-msg">
-            <h3>&#10003; Transaction Recorded</h3>
-            <p>Your financial entry has been saved to the spreadsheet.</p>
-            <p style="margin-top:12px;">You will be redirected to the dashboard shortly...</p>
-            <a href="https://nicholasgordon2002.github.io/PM-Maintenance/dashboard/" class="btn" style="margin-top:16px; text-align:center; text-decoration:none;">Return to Dashboard</a>
-        </div>
+    <div class="card success" id="success-screen">
+        <h2>&#10003; Transaction Recorded</h2>
+        <p>Your financial entry has been saved to the spreadsheet.</p>
+        <p>Redirecting to dashboard...</p>
+        <a href="https://nicholasgordon2002.github.io/PM-Maintenance/dashboard/">Return to Dashboard</a>
     </div>
 
     <script>
-    var FORM_URL = 'https://script.google.com/macros/s/AKfycbx83OYACWPSJDhWboGgiZaqGkoAekK093edS79GeM1JoUDwvWhmOwJ6tGXxVCXefppheQ/exec';
-    var REDIRECT_URL = 'https://nicholasgordon2002.github.io/PM-Maintenance/dashboard/';
+    // ============================================================
+    // SETUP: Replace YOUR_APPS_SCRIPT_URL with your Apps Script
+    // Web App deployment URL (from Google Apps Script → Deploy)
+    // ============================================================
+    var APP_URL = 'https://script.google.com/macros/s/AKfycbzLWSpctt4VFVTw4bh6LacADM33qC6ALrvBZOKXz_nMJ4tvsBoFFSdz9Skl-rEkaRmWrA/exec';
 
     document.getElementById('date').valueAsDate = new Date();
 
-    document.getElementById('financialForm').addEventListener('submit', function(e) {
+    document.getElementById('form').addEventListener('submit', function(e) {
         e.preventDefault();
-        var btn = document.getElementById('submitBtn');
+        var btn = document.getElementById('submit-btn');
         btn.disabled = true;
         btn.textContent = 'Recording...';
 
-        var form = document.getElementById('financialForm');
-        var formData = new FormData(form);
+        var form = document.getElementById('form');
         var body = '';
-        for (var pair of formData.entries()) {
+        var fd = new FormData(form);
+        for (var pair of fd.entries()) {
             body += encodeURIComponent(pair[0]) + '=' + encodeURIComponent(pair[1]) + '&';
         }
 
-        fetch(FORM_URL, {
+        fetch(APP_URL, {
             method: 'POST',
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: body
         }).then(function() {
-            document.getElementById('form-container').style.display = 'none';
-            document.getElementById('success-container').style.display = 'block';
-            setTimeout(function() { window.location.href = REDIRECT_URL; }, 3000);
+            document.getElementById('form-card').style.display = 'none';
+            document.getElementById('success-screen').style.display = 'block';
+            setTimeout(function() { window.location.href = 'https://nicholasgordon2002.github.io/PM-Maintenance/dashboard/'; }, 3000);
         }).catch(function() {
-            document.getElementById('form-container').style.display = 'none';
-            document.getElementById('success-container').style.display = 'block';
-            setTimeout(function() { window.location.href = REDIRECT_URL; }, 3000);
+            document.getElementById('form-card').style.display = 'none';
+            document.getElementById('success-screen').style.display = 'block';
+            setTimeout(function() { window.location.href = 'https://nicholasgordon2002.github.io/PM-Maintenance/dashboard/'; }, 3000);
         });
     });
     </script>
