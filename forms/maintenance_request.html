@@ -5,145 +5,142 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maintenance Request - Rest Easy</title>
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f7f6; color: #333; display: flex; justify-content: center; padding: 20px; min-height: 100vh; align-items: center; }
-        .container { background: #fff; padding: 32px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); max-width: 520px; width: 100%; }
-        .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; font-size: 1.1rem; font-weight: 700; color: #2563EB; }
-        .logo svg { width: 32px; height: 32px; }
-        h1 { font-size: 1.4rem; margin-bottom: 6px; color: #1e293b; }
-        .subtitle { font-size: 0.875rem; color: #64748b; margin-bottom: 24px; }
-        .form-group { margin-bottom: 16px; }
-        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.875rem; color: #374151; }
-        input[type="text"], input[type="email"], input[type="tel"], select, textarea { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem; transition: border-color 0.15s; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f7f6; color: #333; display: flex; justify-content: center; padding: 24px; min-height: 100vh; align-items: center; }
+        .card { background: #fff; padding: 32px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); max-width: 520px; width: 100%; }
+        .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: 1rem; font-weight: 700; color: #2563EB; }
+        .logo svg { width: 28px; height: 28px; flex-shrink: 0; }
+        h1 { font-size: 1.4rem; color: #1e293b; margin-bottom: 4px; }
+        .sub { font-size: 0.875rem; color: #64748b; margin-bottom: 24px; }
+        .row { display: flex; gap: 12px; }
+        .col { flex: 1; }
+        .form-group { margin-bottom: 14px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.875rem; color: #374151; }
+        input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem; font-family: inherit; }
         input:focus, select:focus, textarea:focus { outline: none; border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
-        textarea { height: 100px; resize: vertical; }
-        .btn { background: #2563EB; color: white; padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-size: 1rem; font-weight: 600; margin-top: 8px; transition: background 0.15s; }
+        textarea { height: 90px; resize: vertical; }
+        .btn { background: #2563EB; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-size: 1rem; font-weight: 600; margin-top: 8px; }
         .btn:hover { background: #1d4ed8; }
         .btn:disabled { background: #9ca3af; cursor: not-allowed; }
-        .success-msg { display: none; background: #ecfdf5; border: 1px solid #10b981; border-radius: 6px; padding: 24px; color: #065f46; font-size: 1rem; text-align: center; }
-        .success-msg h3 { font-size: 1.2rem; margin-bottom: 8px; }
+        .success { display: none; background: #ecfdf5; border: 1px solid #10b981; border-radius: 8px; padding: 28px; text-align: center; color: #065f46; }
+        .success h2 { font-size: 1.2rem; margin-bottom: 8px; }
+        .success p { margin-bottom: 16px; }
+        .success a { display: inline-block; background: #2563EB; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; }
         .required { color: #dc2626; }
-        @media (max-width: 480px) { .container { padding: 20px; } }
+        @media (max-width: 480px) { .card { padding: 20px; } .row { flex-direction: column; } }
     </style>
 </head>
 <body>
-    <div class="container" id="form-container">
+    <div class="card" id="form-card">
         <div class="logo">
             <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#2563EB"/><path d="M8 20V12L16 8L24 12V20L16 24L8 20Z" fill="white" fill-opacity="0.9"/><path d="M16 8V24M8 12L24 20M24 12L8 20" stroke="white" stroke-width="1.5" stroke-opacity="0.4"/></svg>
             Rest Easy Property Management
         </div>
         <h1>Maintenance Request</h1>
-        <p class="subtitle">Submit a repair or maintenance issue for your unit.</p>
-        <form id="maintenanceForm">
+        <p class="sub">Submit a repair or maintenance issue for your unit.</p>
+
+        <form id="form" novalidate>
             <input type="hidden" name="formType" value="maintenance">
 
             <div class="form-group">
-                <label for="unitNumber">Unit Number <span class="required">*</span></label>
-                <select name="unitNumber" id="unitNumber" required>
+                <label>Unit Number <span class="required">*</span></label>
+                <select name="unitNumber" required>
                     <option value="">Select your unit...</option>
-                    <option value="Unit 1">Unit 1</option>
-                    <option value="Unit 2">Unit 2</option>
-                    <option value="Unit 3">Unit 3</option>
-                    <option value="Unit 4">Unit 4</option>
+                    <option>Unit 1</option><option>Unit 2</option><option>Unit 3</option><option>Unit 4</option>
                 </select>
             </div>
 
-            <div class="form-group">
-                <label for="tenantName">Your Name <span class="required">*</span></label>
-                <input type="text" id="tenantName" name="tenantName" required placeholder="Full name">
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label>Your Name <span class="required">*</span></label>
+                        <input type="text" name="tenantName" required placeholder="Full name">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label>Your Email <span class="required">*</span></label>
+                        <input type="email" name="tenantEmail" required placeholder="email@example.com">
+                    </div>
+                </div>
             </div>
 
             <div class="form-group">
-                <label for="tenantEmail">Your Email <span class="required">*</span></label>
-                <input type="email" id="tenantEmail" name="tenantEmail" required placeholder="email@example.com">
+                <label>Your Phone</label>
+                <input type="tel" name="tenantPhone" placeholder="555-0123 (optional)">
             </div>
 
             <div class="form-group">
-                <label for="tenantPhone">Your Phone</label>
-                <input type="tel" id="tenantPhone" name="tenantPhone" placeholder="555-0123 (optional)">
-            </div>
-
-            <div class="form-group">
-                <label for="category">Issue Category <span class="required">*</span></label>
-                <select name="category" id="category" required>
+                <label>Issue Category <span class="required">*</span></label>
+                <select name="category" required>
                     <option value="">Select category...</option>
-                    <option value="Plumbing">Plumbing</option>
-                    <option value="Electrical">Electrical</option>
-                    <option value="HVAC">HVAC / Climate</option>
-                    <option value="Appliance">Appliance</option>
-                    <option value="Structural">Structural</option>
-                    <option value="Pest">Pest</option>
-                    <option value="Other">Other</option>
+                    <option>Plumbing</option><option>Electrical</option><option>HVAC</option><option>Appliance</option><option>Structural</option><option>Pest</option><option>Other</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label for="description">Description of Issue <span class="required">*</span></label>
-                <textarea id="description" name="description" maxlength="500" required placeholder="Please describe the issue in as much detail as possible..."></textarea>
+                <label>Description of Issue <span class="required">*</span></label>
+                <textarea name="description" maxlength="500" required placeholder="Please describe the issue in detail..."></textarea>
             </div>
 
             <div class="form-group">
-                <label for="contactMethod">Preferred Contact Method <span class="required">*</span></label>
-                <select name="contactMethod" id="contactMethod" required>
-                    <option value="Email">Email</option>
-                    <option value="Phone">Phone</option>
-                    <option value="Either">Either</option>
+                <label>Preferred Contact <span class="required">*</span></label>
+                <select name="contactMethod" required>
+                    <option>Email</option><option>Phone</option><option>Either</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label for="urgency">Urgency <span class="required">*</span></label>
-                <select name="urgency" id="urgency" required>
-                    <option value="Low">Low — Routine maintenance</option>
-                    <option value="Medium" selected>Medium — Needs attention soon</option>
-                    <option value="High">High — Affecting daily life</option>
-                    <option value="Emergency">Emergency — Immediate danger or damage</option>
+                <label>Urgency <span class="required">*</span></label>
+                <select name="urgency" required>
+                    <option>Low</option><option selected>Medium</option><option>High</option><option>Emergency</option>
                 </select>
             </div>
 
-            <button type="submit" class="btn" id="submitBtn">Submit Request</button>
+            <button type="submit" class="btn" id="submit-btn">Submit Request</button>
         </form>
     </div>
 
-    <div class="container" id="success-container" style="display:none;">
-        <div class="success-msg">
-            <h3>&#10003; Request Submitted</h3>
-            <p>Your landlord will respond within 24 hours. Thank you.</p>
-            <p style="margin-top:12px;">You will be redirected to the dashboard shortly...</p>
-            <a href="https://nicholasgordon2002.github.io/PM-Maintenance/dashboard/" class="btn" style="margin-top:16px; text-align:center; text-decoration:none;">Return to Dashboard</a>
-        </div>
+    <div class="card success" id="success-screen">
+        <h2>&#10003; Request Submitted</h2>
+        <p>Your landlord will respond within 24 hours.</p>
+        <p>Redirecting to dashboard...</p>
+        <a href="https://nicholasgordon2002.github.io/PM-Maintenance/dashboard/">Return to Dashboard</a>
     </div>
 
     <script>
-    var FORM_URL = 'https://script.google.com/macros/s/AKfycbx83OYACWPSJDhWboGgiZaqGkoAekK093edS79GeM1JoUDwvWhmOwJ6tGXxVCXefppheQ/exec';
-    var REDIRECT_URL = 'https://nicholasgordon2002.github.io/PM-Maintenance/dashboard/';
+    // ============================================================
+    // SETUP: Replace YOUR_APPS_SCRIPT_URL with your Apps Script
+    // Web App deployment URL (from Google Apps Script → Deploy)
+    // ============================================================
+    var APP_URL = 'https://script.google.com/macros/s/AKfycbzLWSpctt4VFVTw4bh6LacADM33qC6ALrvBZOKXz_nMJ4tvsBoFFSdz9Skl-rEkaRmWrA/exec';
 
-    document.getElementById('maintenanceForm').addEventListener('submit', function(e) {
+    document.getElementById('form').addEventListener('submit', function(e) {
         e.preventDefault();
-        var btn = document.getElementById('submitBtn');
+        var btn = document.getElementById('submit-btn');
         btn.disabled = true;
         btn.textContent = 'Submitting...';
 
-        var form = document.getElementById('maintenanceForm');
-        var formData = new FormData(form);
+        var form = document.getElementById('form');
         var body = '';
-        for (var pair of formData.entries()) {
+        var fd = new FormData(form);
+        for (var pair of fd.entries()) {
             body += encodeURIComponent(pair[0]) + '=' + encodeURIComponent(pair[1]) + '&';
         }
 
-        fetch(FORM_URL, {
+        fetch(APP_URL, {
             method: 'POST',
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: body
         }).then(function() {
-            document.getElementById('form-container').style.display = 'none';
-            document.getElementById('success-container').style.display = 'block';
-            setTimeout(function() { window.location.href = REDIRECT_URL; }, 3000);
+            document.getElementById('form-card').style.display = 'none';
+            document.getElementById('success-screen').style.display = 'block';
+            setTimeout(function() { window.location.href = 'https://nicholasgordon2002.github.io/PM-Maintenance/dashboard/'; }, 3000);
         }).catch(function() {
-            document.getElementById('form-container').style.display = 'none';
-            document.getElementById('success-container').style.display = 'block';
-            setTimeout(function() { window.location.href = REDIRECT_URL; }, 3000);
+            document.getElementById('form-card').style.display = 'none';
+            document.getElementById('success-screen').style.display = 'block';
+            setTimeout(function() { window.location.href = 'https://nicholasgordon2002.github.io/PM-Maintenance/dashboard/'; }, 3000);
         });
     });
     </script>
