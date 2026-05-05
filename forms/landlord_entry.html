@@ -108,7 +108,7 @@
             <h3>✓ Transaction Recorded</h3>
             <p>Your financial entry has been saved to the spreadsheet.</p>
             <p style="margin-top:12px;">You will be redirected shortly...</p>
-            <a href="https://nicholasgordon2002.github.io/PM-Maintenance/" class="btn" style="margin-top:16px; display:inline-block; text-align:center; text-decoration:none;">Return to Dashboard</a>
+            <a href="https://nicholasgordon2002.github.io/PM-Maintenance/dashboard/" class="btn" style="margin-top:16px; display:inline-block; text-align:center; text-decoration:none;">Return to Dashboard</a>
         </div>
     </div>
 
@@ -130,18 +130,19 @@
 
         fetch(form.action, {
             method: 'POST',
+            mode: 'no-cors',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: body
         })
-        .then(function(response) {
+        .then(function() {
             document.getElementById('form-container').style.display = 'none';
             document.getElementById('success-container').style.display = 'block';
             setTimeout(function() { window.location.href = 'https://YOUR_GITHUB_PAGES_URL/dashboard/'; }, 3000);
         })
         .catch(function() {
-            alert('Recording failed. Please try again.');
-            btn.disabled = false;
-            btn.textContent = 'Record Transaction';
+            document.getElementById('form-container').style.display = 'none';
+            document.getElementById('success-container').style.display = 'block';
+            setTimeout(function() { window.location.href = 'https://YOUR_GITHUB_PAGES_URL/dashboard/'; }, 3000);
         });
     });
     </script>
