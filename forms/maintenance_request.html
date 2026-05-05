@@ -3,115 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tenant Maintenance Request - Rest Easy</title>
+    <title>Maintenance Request - Rest Easy</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f7f6;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            padding: 20px;
-        }
-        .container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            max-width: 500px;
-            width: 100%;
-        }
-        h1 {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            color: #2c3e50;
-            text-align: center;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-        input[type="text"],
-        input[type="email"],
-        input[type="tel"],
-        select,
-        textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box; /* Ensures padding doesn't affect width */
-        }
-        textarea {
-            height: 100px;
-            resize: vertical;
-        }
-        .urgency-emergency { color: #d9534f; font-weight: bold; }
-        .btn {
-            background-color: #3498db;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 1rem;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        .btn:hover {
-            background-color: #2980b9;
-        }
-        .footer {
-            margin-top: 20px;
-            font-size: 0.8rem;
-            text-align: center;
-            color: #7f8c8d;
-        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f7f6; color: #333; display: flex; justify-content: center; padding: 20px; min-height: 100vh; align-items: center; }
+        .container { background: #fff; padding: 32px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); max-width: 520px; width: 100%; }
+        .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; font-size: 1.1rem; font-weight: 700; color: #2563EB; }
+        .logo svg { width: 32px; height: 32px; }
+        h1 { font-size: 1.4rem; margin-bottom: 6px; color: #1e293b; }
+        .subtitle { font-size: 0.875rem; color: #64748b; margin-bottom: 24px; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.875rem; color: #374151; }
+        input[type="text"], input[type="email"], input[type="tel"], select, textarea { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem; transition: border-color 0.15s; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        textarea { height: 100px; resize: vertical; }
+        .btn { background: #2563EB; color: white; padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-size: 1rem; font-weight: 600; margin-top: 8px; transition: background 0.15s; }
+        .btn:hover { background: #1d4ed8; }
+        .btn:disabled { background: #9ca3af; cursor: not-allowed; }
+        .success-msg { display: none; background: #ecfdf5; border: 1px solid #10b981; border-radius: 6px; padding: 16px; color: #065f46; font-size: 0.95rem; text-align: center; }
+        .success-msg h3 { font-size: 1.1rem; margin-bottom: 6px; }
+        .required { color: #dc2626; }
+        @media (max-width: 480px) { .container { padding: 20px; } }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="form-container">
+        <div class="logo">
+            <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#2563EB"/><path d="M8 20V12L16 8L24 12V20L16 24L8 20Z" fill="white" fill-opacity="0.9"/><path d="M16 8V24M8 12L24 20M24 12L8 20" stroke="white" stroke-width="1.5" stroke-opacity="0.4"/></svg>
+            Rest Easy Property Management
+        </div>
         <h1>Maintenance Request</h1>
-        <form action="https://script.google.com/macros/s/AKfycbwIaX167KxvK2liDqKJg83vD6AXS24Qtx7it_-NXD2Zx9e-6nCmmW6cq5wC3XcpG5b4Ag/exec" method="POST">
+        <p class="subtitle">Submit a repair or maintenance issue for your unit.</p>
+        <form id="maintenanceForm" action="https://script.google.com/macros/s/AKfycbwIaX167KxvK2liDqKJg83vD6AXS24Qtx7it_-NXD2Zx9e-6nCmmW6cq5wC3XcpG5b4Ag/exec" method="POST">
+            <input type="hidden" name="formType" value="maintenance">
+
             <div class="form-group">
-                <label for="unitNumber">Unit Number</label>
+                <label for="unitNumber">Unit Number <span class="required">*</span></label>
                 <select name="unitNumber" id="unitNumber" required>
-                    <option value="">Select Unit...</option>
+                    <option value="">Select your unit...</option>
                     <option value="Unit 1">Unit 1</option>
                     <option value="Unit 2">Unit 2</option>
                     <option value="Unit 3">Unit 3</option>
                     <option value="Unit 4">Unit 4</option>
-                    <!-- Landlord: Add more units here as needed -->
                 </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="tenantName">Your Name</label>
-                <input type="text" id="tenantName" name="tenantName" required placeholder="Full Name">
             </div>
 
             <div class="form-group">
-                <label for="tenantEmail">Your Email</label>
+                <label for="tenantName">Your Name <span class="required">*</span></label>
+                <input type="text" id="tenantName" name="tenantName" required placeholder="Full name">
+            </div>
+
+            <div class="form-group">
+                <label for="tenantEmail">Your Email <span class="required">*</span></label>
                 <input type="email" id="tenantEmail" name="tenantEmail" required placeholder="email@example.com">
             </div>
 
             <div class="form-group">
-                <label for="tenantPhone">Your Phone (Optional)</label>
-                <input type="tel" id="tenantPhone" name="tenantPhone" placeholder="555-0123">
+                <label for="tenantPhone">Your Phone</label>
+                <input type="tel" id="tenantPhone" name="tenantPhone" placeholder="555-0123 (optional)">
             </div>
 
             <div class="form-group">
-                <label for="category">Issue Category</label>
+                <label for="category">Issue Category <span class="required">*</span></label>
                 <select name="category" id="category" required>
-                    <option value="">Select Category...</option>
+                    <option value="">Select category...</option>
                     <option value="Plumbing">Plumbing</option>
                     <option value="Electrical">Electrical</option>
-                    <option value="HVAC">HVAC</option>
+                    <option value="HVAC">HVAC / Climate</option>
                     <option value="Appliance">Appliance</option>
                     <option value="Structural">Structural</option>
                     <option value="Pest">Pest</option>
@@ -120,12 +78,12 @@
             </div>
 
             <div class="form-group">
-                <label for="description">Description of Issue</label>
-                <textarea id="description" name="description" maxlength="500" required placeholder="Please describe the issue in detail..."></textarea>
+                <label for="description">Description of Issue <span class="required">*</span></label>
+                <textarea id="description" name="description" maxlength="500" required placeholder="Please describe the issue in as much detail as possible..."></textarea>
             </div>
 
             <div class="form-group">
-                <label for="contactMethod">Preferred Contact Method</label>
+                <label for="contactMethod">Preferred Contact Method <span class="required">*</span></label>
                 <select name="contactMethod" id="contactMethod" required>
                     <option value="Email">Email</option>
                     <option value="Phone">Phone</option>
@@ -134,20 +92,61 @@
             </div>
 
             <div class="form-group">
-                <label for="urgency">Urgency</label>
+                <label for="urgency">Urgency <span class="required">*</span></label>
                 <select name="urgency" id="urgency" required>
-                    <option value="Low">Low (Routine)</option>
-                    <option value="Medium" selected>Medium</option>
-                    <option value="High">High</option>
-                    <option value="Emergency">Emergency (Immediate danger/damage)</option>
+                    <option value="Low">Low — Routine maintenance</option>
+                    <option value="Medium" selected>Medium — Needs attention soon</option>
+                    <option value="High">High — Affecting daily life</option>
+                    <option value="Emergency">Emergency — Immediate danger or damage</option>
                 </select>
             </div>
 
-            <button type="submit" class="btn">Submit Request</button>
+            <button type="submit" class="btn" id="submitBtn">Submit Request</button>
         </form>
-        <div class="footer">
-            Powered by Rest Easy Property Management
+    </div>
+
+    <div class="container" id="success-container" style="display:none;">
+        <div class="success-msg">
+            <h3>✓ Request Submitted</h3>
+            <p>Your landlord will respond within 24 hours. Thank you.</p>
         </div>
     </div>
+
+    <script>
+    document.getElementById('maintenanceForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.textContent = 'Submitting...';
+
+        var form = document.getElementById('maintenanceForm');
+        var formData = new FormData(form);
+        var body = '';
+        for (var pair of formData.entries()) {
+            body += encodeURIComponent(pair[0]) + '=' + encodeURIComponent(pair[1]) + '&';
+        }
+
+        fetch(form.action, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: body
+        })
+        .then(function(response) {
+            if (response.ok) {
+                document.getElementById('form-container').style.display = 'none';
+                document.getElementById('success-container').style.display = 'block';
+            } else {
+                alert('Submission failed. Please try again.');
+                btn.disabled = false;
+                btn.textContent = 'Submit Request';
+            }
+        })
+        .catch(function() {
+            alert('Submission failed. Please try again.');
+            btn.disabled = false;
+            btn.textContent = 'Submit Request';
+        });
+    });
+    </script>
 </body>
 </html>
