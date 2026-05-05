@@ -1,166 +1,116 @@
 // Rest Easy Property Dashboard - App Logic
 
-// ============================================
-// State
-// ============================================
-let maintenanceData = [];
-let financialData = {};     // { rentExpected, rentCollected, monthIncome, monthExpenses, netCashflow, units: [...] }
-let unitsData = [];
-let settings = {
-    scriptUrl: '',
-    propertyName: 'Maple Ridge Apartments'
-};
+var maintenanceData = [];
+var financialData = {};
+var settings = { scriptUrl: '', propertyName: 'Rest Easy Properties' };
 
-// ============================================
-// Initialization
-// ============================================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function() {
     initTabs();
     loadSettings();
     loadData();
     updateTimestamp();
-
-    // Auto-refresh every 60 seconds
     setInterval(loadData, 60000);
 });
 
-// ============================================
-// Tab Navigation
-// ============================================
 function initTabs() {
-    const tabs = document.querySelectorAll('.tab');
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            const tabId = tab.dataset.tab;
-
-            tabs.forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            var tabId = tab.dataset.tab;
+            document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
             tab.classList.add('active');
-
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.getElementById(`${tabId}-view`).classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+            document.getElementById(tabId + '-view').classList.add('active');
         });
     });
 }
 
-// ============================================
+// ================================================================
 // Data Loading
-// ============================================
-async function loadData() {
+// ================================================================
+function loadData() {
     if (settings.scriptUrl) {
-        await loadFromGoogleSheets();
+        loadFromGoogleSheets();
     } else {
         loadDemoData();
-    }
-    renderAll();
-    updateTimestamp();
-}
-
-async function loadFromGoogleSheets() {
-    try {
-        const response = await fetch(settings.scriptUrl);
-        if (!response.ok) throw new Error('Non-OK response');
-        const data = await response.json();
-
-        maintenanceData = data.maintenance || [];
-        financialData  = data.summary  || {};
-        unitsData     = data.units     || [];
-
-        updateConnectionStatus(true);
-    } catch (error) {
-        console.warn('Could not load from Google Sheets, using demo data:', error);
-        loadDemoData();
-        updateConnectionStatus(false);
     }
 }
 
 function loadDemoData() {
     maintenanceData = [
-        { id: 'ML-001', timestamp: '2026-04-29 08:30 AM', unit: 'Unit 3', tenantName: 'Maria Garcia', tenantEmail: 'mgarcia@email.com', tenantPhone: '(555) 123-4567', category: 'Plumbing', description: 'Kitchen sink draining slowly. Water backs up when running the dishwasher.', urgency: 'Medium', status: 'In Progress', landlordNotes: 'Scheduled plumber for Thursday' },
-        { id: 'ML-002', timestamp: '2026-04-28 03:15 PM', unit: 'Unit 7', tenantName: 'James Wilson', tenantEmail: 'jwilson@email.com', tenantPhone: '(555) 987-6543', category: 'Electrical', description: 'Bedroom ceiling light flickers intermittently.', urgency: 'Low', status: 'New', landlordNotes: '' },
-        { id: 'ML-003', timestamp: '2026-04-28 09:00 AM', unit: 'Unit 1', tenantName: 'Robert Chen', tenantEmail: 'rchen@email.com', tenantPhone: '(555) 456-7890', category: 'HVAC', description: 'AC unit not cooling properly. Making loud noise when running.', urgency: 'High', status: 'Pending Parts', landlordNotes: 'Ordered compressor part, ETA 3 days' },
-        { id: 'ML-004', timestamp: '2026-04-27 11:45 AM', unit: 'Unit 5', tenantName: 'Sarah Johnson', tenantEmail: 'sjohnson@email.com', tenantPhone: '(555) 234-5678', category: 'Appliance', description: 'Refrigerator making buzzing noise and not maintaining temperature.', urgency: 'Emergency', status: 'Resolved', landlordNotes: 'Replaced compressor motor.' },
-        { id: 'ML-005', timestamp: '2026-04-26 02:30 PM', unit: 'Unit 2', tenantName: 'Linda Martinez', tenantEmail: 'lmartinez@email.com', tenantPhone: '(555) 345-6789', category: 'Pest', description: 'Seeing ants in kitchen area. Store-bought traps not working.', urgency: 'Low', status: 'Resolved', landlordNotes: 'Exterminator sprayed 4/25.' },
-        { id: 'ML-006', timestamp: '2026-04-25 10:00 AM', unit: 'Unit 8', tenantName: 'Michael Brown', tenantEmail: 'mbrown@email.com', tenantPhone: '(555) 567-8901', category: 'Plumbing', description: 'Toilet running constantly.', urgency: 'Medium', status: 'New', landlordNotes: '' },
-        { id: 'ML-007', timestamp: '2026-04-24 04:20 PM', unit: 'Unit 4', tenantName: 'Emily Davis', tenantEmail: 'edavis@email.com', tenantPhone: '(555) 678-9012', category: 'Structural', description: 'Crack appearing in bedroom wall near window. Getting wider.', urgency: 'High', status: 'In Progress', landlordNotes: 'Called structural engineer.' }
+        { _rowIndex: 2, Timestamp: '2026-04-29 08:30 AM', 'Unit Number': 'Unit 3', 'Tenant Name': 'Maria Garcia', 'Tenant Email': 'mgarcia@email.com', 'Tenant Phone': '(555) 123-4567', Category: 'Plumbing', Description: 'Kitchen sink draining slowly. Water backs up when running the dishwasher.', Urgency: 'Medium', Status: 'In Progress', 'Landlord Notes': 'Scheduled plumber for Thursday' },
+        { _rowIndex: 3, Timestamp: '2026-04-28 03:15 PM', 'Unit Number': 'Unit 7', 'Tenant Name': 'James Wilson', 'Tenant Email': 'jwilson@email.com', 'Tenant Phone': '(555) 987-6543', Category: 'Electrical', Description: 'Bedroom ceiling light flickers intermittently.', Urgency: 'Low', Status: 'New', 'Landlord Notes': '' },
+        { _rowIndex: 4, Timestamp: '2026-04-28 09:00 AM', 'Unit Number': 'Unit 1', 'Tenant Name': 'Robert Chen', 'Tenant Email': 'rchen@email.com', 'Tenant Phone': '(555) 456-7890', Category: 'HVAC', Description: 'AC unit not cooling properly. Making loud noise when running.', Urgency: 'High', Status: 'Pending Parts', 'Landlord Notes': 'Ordered compressor part, ETA 3 days' },
+        { _rowIndex: 5, Timestamp: '2026-04-27 11:45 AM', 'Unit Number': 'Unit 5', 'Tenant Name': 'Sarah Johnson', 'Tenant Email': 'sjohnson@email.com', 'Tenant Phone': '(555) 234-5678', Category: 'Appliance', Description: 'Refrigerator not maintaining temperature.', Urgency: 'Emergency', Status: 'Resolved', 'Landlord Notes': 'Replaced compressor motor.' },
+        { _rowIndex: 6, Timestamp: '2026-04-24 04:20 PM', 'Unit Number': 'Unit 4', 'Tenant Name': 'Emily Davis', 'Tenant Email': 'edavis@email.com', 'Tenant Phone': '(555) 678-9012', Category: 'Structural', Description: 'Crack in bedroom wall near window. Getting wider.', Urgency: 'High', Status: 'In Progress', 'Landlord Notes': 'Called structural engineer.' }
     ];
 
     financialData = {
-        rentExpected: 6400,
-        rentCollected: 4800,
-        monthIncome: 5200,
-        monthExpenses: 1850,
-        netCashflow: 3350,
+        rentExpected: 6400, rentCollected: 4800,
+        monthIncome: 5200, monthExpenses: 1850, netCashflow: 3350,
         units: [
             { unit: 'Unit 1', tenant: 'Robert Chen',   rent: 800, collected: 800, outstanding: 0,   status: 'current' },
             { unit: 'Unit 2', tenant: 'Linda Martinez', rent: 800, collected: 800, outstanding: 0,   status: 'current' },
             { unit: 'Unit 3', tenant: 'Maria Garcia',  rent: 800, collected: 600, outstanding: 200,  status: 'delinquent' },
             { unit: 'Unit 4', tenant: 'Emily Davis',   rent: 800, collected: 800, outstanding: 0,   status: 'current' },
             { unit: 'Unit 5', tenant: 'Sarah Johnson', rent: 800, collected: 0,   outstanding: 800,  status: 'delinquent' },
-            { unit: 'Unit 6', tenant: '—',             rent: 800, collected: 0,   outstanding: 0,    status: 'vacant' },
+            { unit: 'Unit 6', tenant: '—',           rent: 800, collected: 0,   outstanding: 0,    status: 'vacant' },
             { unit: 'Unit 7', tenant: 'James Wilson',  rent: 800, collected: 800, outstanding: 0,   status: 'current' },
             { unit: 'Unit 8', tenant: 'Michael Brown', rent: 800, collected: 0,   outstanding: 800,  status: 'delinquent' }
         ]
     };
+
+    renderAll();
+    updateConnectionStatus(false);
 }
 
-// ============================================
-// Helpers — get status/urgency/timestamp from both demo (lowercase) and sheet (Capitalized) formats
-// ============================================
-function getStatus(r) {
-    return r.Status || r.status || '';
+function loadFromGoogleSheets() {
+    fetch(settings.scriptUrl)
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            maintenanceData = data.maintenance || [];
+            financialData  = data.summary  || {};
+            renderAll();
+            updateConnectionStatus(true);
+        })
+        .catch(function(err) {
+            console.warn('Sheets fetch failed, using demo data:', err);
+            loadDemoData();
+            updateConnectionStatus(false);
+        });
 }
 
-function getUrgency(r) {
-    return r.Urgency || r.urgency || '';
+// ================================================================
+// Helpers — normalize property names for both demo (lowercase) and sheet (Capitalized) formats
+// ================================================================
+function S(r)  { return r.Status        || r.status        || ''; }
+function U(r)  { return r.Urgency      || r.urgency      || ''; }
+function TS(r) { return r.Timestamp    || r.timestamp    || ''; }
+function UN(r) { return r['Unit Number'] || r.unit        || ''; }
+function CAT(r){ return r.Category      || r.category      || ''; }
+function DES(r){ return r.Description   || r.description || ''; }
+function TN(r) { return r['Tenant Name']  || r.tenantName  || ''; }
+function TE(r) { return r['Tenant Email'] || r.tenantEmail || ''; }
+function TP(r) { return r['Tenant Phone'] || r.tenantPhone || ''; }
+function LN(r) { return r['Landlord Notes'] || r.landlordNotes || ''; }
+function RI(r) { return r._rowIndex || ''; }
+
+function statusClass(s) {
+    if (!s) return '';
+    return s.toLowerCase().replace(/\s+/g, '-');
 }
 
-function getTimestamp(r) {
-    return r.Timestamp || r.timestamp || '';
+function fmt(n) {
+    return '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 0 });
 }
 
-function getUnit(r) {
-    return r['Unit Number'] || r.unit || '';
-}
-
-function getCategory(r) {
-    return r.Category || r.category || '';
-}
-
-function getDescription(r) {
-    return r.Description || r.description || '';
-}
-
-function getTenantName(r) {
-    return r['Tenant Name'] || r.tenantName || '';
-}
-
-function getTenantEmail(r) {
-    return r['Tenant Email'] || r.tenantEmail || '';
-}
-
-function getTenantPhone(r) {
-    return r['Tenant Phone'] || r.tenantPhone || '';
-}
-
-function getLandlordNotes(r) {
-    return r['Landlord Notes'] || r.landlordNotes || '';
-}
-
-function statusToClass(status) {
-    if (!status) return '';
-    return status.toLowerCase().replace(/\s+/g, '-');
-}
-
-function truncate(str, len) {
+function trunc(str, len) {
     if (!str) return '';
     return str.length > len ? str.substring(0, len) + '...' : str;
 }
 
-// ============================================
+// ================================================================
 // Rendering
-// ============================================
+// ================================================================
 function renderAll() {
     renderMaintenanceTable();
     renderMaintenanceStats();
@@ -169,157 +119,103 @@ function renderAll() {
 }
 
 function renderMaintenanceTable() {
-    const tbody = document.getElementById('maintenance-tbody');
-    if (!tbody) return;
+    var tbody = document.getElementById('maintenance-tbody');
+    var sf = document.getElementById('status-filter').value;
+    var uf = document.getElementById('urgency-filter').value;
 
-    const statusFilter = document.getElementById('status-filter').value;
-    const urgencyFilter = document.getElementById('urgency-filter').value;
+    var rows = maintenanceData.filter(function(r) {
+        if (sf && S(r) !== sf) return false;
+        if (uf && U(r) !== uf) return false;
+        return true;
+    });
 
-    let filtered = maintenanceData;
+    tbody.innerHTML = rows.map(function(r) {
+        return '<tr>' +
+            '<td>' + TS(r) + '</td>' +
+            '<td><strong>' + UN(r) + '</strong></td>' +
+            '<td>' + CAT(r) + '</td>' +
+            '<td><span class="urgency-badge ' + statusClass(U(r)) + '">' + U(r) + '</span></td>' +
+            '<td><span class="status-badge ' + statusClass(S(r)) + '">' + S(r) + '</span></td>' +
+            '<td><div class="desc-cell" title="' + DES(r) + '">' + trunc(DES(r), 45) + '</div></td>' +
+            '<td><strong>' + TN(r) + '</strong><br><span>' + TE(r) + '</span>' + (TP(r) ? '<br><span>' + TP(r) + '</span>' : '') + '</td>' +
+            '<td><button class="btn-action primary" onclick="openModal(' + maintenanceData.indexOf(r) + ')">Update</button></td>' +
+            '</tr>';
+    }).join('');
 
-    if (statusFilter) {
-        filtered = filtered.filter(r => getStatus(r) === statusFilter);
-    }
-    if (urgencyFilter) {
-        filtered = filtered.filter(r => getUrgency(r) === urgencyFilter);
-    }
-
-    tbody.innerHTML = filtered.map((request) => `
-        <tr>
-            <td>${getTimestamp(request)}</td>
-            <td><strong>${getUnit(request)}</strong></td>
-            <td>${getCategory(request)}</td>
-            <td><span class="urgency-badge ${statusToClass(getUrgency(request))}">${getUrgency(request)}</span></td>
-            <td><span class="status-badge ${statusToClass(getStatus(request))}">${getStatus(request)}</span></td>
-            <td><div class="description-cell" title="${getDescription(request)}">${truncate(getDescription(request), 50)}</div></td>
-            <td>
-                <div class="tenant-info">
-                    <strong>${getTenantName(request)}</strong>
-                    <span>${getTenantEmail(request)}</span>
-                    ${getTenantPhone(request) ? `<span>${getTenantPhone(request)}</span>` : ''}
-                </div>
-            </td>
-            <td>
-                <button class="btn-action primary" onclick="openMaintenanceModal(${maintenanceData.indexOf(request)})">Update</button>
-            </td>
-        </tr>
-    `).join('');
-
-    if (filtered.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="8" style="text-align: center; padding: 40px; color: var(--gray-400);">
-                    No maintenance requests found
-                </td>
-            </tr>
-        `;
+    if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:#9ca3af;">No requests found</td></tr>';
     }
 }
 
 function renderMaintenanceStats() {
-    const emergency = maintenanceData.filter(r => getUrgency(r) === 'Emergency' && getStatus(r) !== 'Resolved').length;
-    const high = maintenanceData.filter(r => getUrgency(r) === 'High' && getStatus(r) !== 'Resolved').length;
-    const open = maintenanceData.filter(r => getStatus(r) !== 'Resolved' && getStatus(r) !== 'Rejected').length;
-
-    const now = new Date();
-    const thisMonth = now.getMonth();
-    const thisYear = now.getFullYear();
-    const resolved = maintenanceData.filter(r => {
-        if (getStatus(r) !== 'Resolved') return false;
-        const d = new Date(getTimestamp(r));
-        return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+    var emergency = maintenanceData.filter(function(r) { return U(r) === 'Emergency' && S(r) !== 'Resolved'; }).length;
+    var high     = maintenanceData.filter(function(r) { return U(r) === 'High'     && S(r) !== 'Resolved'; }).length;
+    var open     = maintenanceData.filter(function(r) { return S(r) !== 'Resolved' && S(r) !== 'Rejected'; }).length;
+    var now = new Date(), thisM = now.getMonth(), thisY = now.getFullYear();
+    var resolved = maintenanceData.filter(function(r) {
+        if (S(r) !== 'Resolved') return false;
+        var d = new Date(TS(r)); return d.getMonth() === thisM && d.getFullYear() === thisY;
     }).length;
 
     document.getElementById('emergency-count').textContent = emergency;
-    document.getElementById('high-count').textContent = high;
-    document.getElementById('open-count').textContent = open;
-    document.getElementById('resolved-count').textContent = resolved;
+    document.getElementById('high-count').textContent     = high;
+    document.getElementById('open-count').textContent     = open;
+    document.getElementById('resolved-count').textContent  = resolved;
 }
 
 function renderFinancialSummary() {
-    const fd = financialData;
-    if (!fd || typeof fd !== 'object') return;
-
-    const el = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
-
-    el('rent-expected',     formatCurrency(fd.rentExpected || 0));
-    el('rent-collected',   formatCurrency(fd.rentCollected || 0));
-    el('rent-outstanding',  formatCurrency((fd.rentExpected || 0) - (fd.rentCollected || 0)));
-
-    const rate = (fd.rentExpected > 0) ? Math.round(((fd.rentCollected || 0) / fd.rentExpected) * 100) : 0;
-    el('collection-rate', rate + '%');
-
-    el('month-income',    formatCurrency(fd.monthIncome || 0));
-    el('month-expenses',  formatCurrency(fd.monthExpenses || 0));
-    el('net-cashflow',    formatCurrency(fd.netCashflow || 0));
-
-    const netEl = document.getElementById('net-cashflow');
-    if (netEl) netEl.className = 'metric-value ' + ((fd.netCashflow || 0) >= 0 ? 'success' : 'danger');
+    var fd = financialData;
+    document.getElementById('rent-expected').textContent     = fmt(fd.rentExpected || 0);
+    document.getElementById('rent-collected').textContent   = fmt(fd.rentCollected || 0);
+    document.getElementById('rent-outstanding').textContent = fmt((fd.rentExpected || 0) - (fd.rentCollected || 0));
+    var rate = fd.rentExpected > 0 ? Math.round((fd.rentCollected / fd.rentExpected) * 100) : 0;
+    document.getElementById('collection-rate').textContent = rate + '%';
+    document.getElementById('month-income').textContent    = fmt(fd.monthIncome || 0);
+    document.getElementById('month-expenses').textContent  = fmt(fd.monthExpenses || 0);
+    document.getElementById('net-cashflow').textContent    = fmt(fd.netCashflow || 0);
+    var netEl = document.getElementById('net-cashflow');
+    netEl.className = 'metric-value ' + ((fd.netCashflow || 0) >= 0 ? 'success' : 'danger');
 }
 
 function renderUnitsTable() {
-    const tbody = document.getElementById('units-tbody');
-    if (!tbody) return;
+    var tbody = document.getElementById('units-tbody');
+    var units = (financialData && financialData.units) ? financialData.units : [];
+    var self = this;
 
-    const units = financialData && financialData.units;
-    if (!units || !Array.isArray(units)) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--gray-400);">No unit data</td></tr>';
-        return;
+    tbody.innerHTML = units.map(function(u) {
+        var outstanding = u.outstanding || 0;
+        return '<tr>' +
+            '<td><strong>' + (u.unit || '') + '</strong></td>' +
+            '<td>' + (u.tenant === '—' ? '<span style="color:#9ca3af">Vacant</span>' : (u.tenant || '—')) + '</td>' +
+            '<td>' + fmt(u.rent || 0) + '</td>' +
+            '<td>' + fmt(u.collected || 0) + '</td>' +
+            '<td style="color:' + (outstanding > 0 ? 'var(--danger)' : 'var(--success)') + '">' + fmt(outstanding) + '</td>' +
+            '<td><span class="unit-status ' + (u.status || '') + '">' + (u.status || '') + '</span></td>' +
+            '</tr>';
+    }).join('');
+
+    if (!units.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#9ca3af;">No units configured</td></tr>';
     }
 
-    tbody.innerHTML = units.map(unit => `
-        <tr>
-            <td><strong>${unit.unit || ''}</strong></td>
-            <td>${unit.tenant === '—' ? '<span style="color:var(--gray-400)">Vacant</span>' : (unit.tenant || '—')}</td>
-            <td>${formatCurrency(unit.rent || 0)}</td>
-            <td>${formatCurrency(unit.collected || 0)}</td>
-            <td style="color: ${(unit.outstanding || 0) > 0 ? 'var(--danger)' : 'var(--success)'}">${formatCurrency(unit.outstanding || 0)}</td>
-            <td><span class="unit-status ${unit.status || ''}">${statusLabel(unit.status)}</span></td>
-        </tr>
-    `).join('');
-
-    // Maintenance summary widgets
-    const openRequests = maintenanceData.filter(r => getStatus(r) !== 'Resolved' && getStatus(r) !== 'Rejected').length;
-    document.getElementById('open-requests').textContent = openRequests;
-
-    const now = new Date();
-    const thisMonth = now.getMonth();
-    const thisYear = now.getFullYear();
-    const resolvedMonth = maintenanceData.filter(r => {
-        if (getStatus(r) !== 'Resolved') return false;
-        return true;
-    }).length;
-    document.getElementById('resolved-month').textContent = resolvedMonth;
+    var openReq = maintenanceData.filter(function(r) { return S(r) !== 'Resolved' && S(r) !== 'Rejected'; }).length;
+    document.getElementById('open-requests').textContent = openReq;
+    var resolvedM = maintenanceData.filter(function(r) { return S(r) === 'Resolved'; }).length;
+    document.getElementById('resolved-month').textContent = resolvedM;
 }
 
-function statusLabel(status) {
-    const labels = { 'current': 'Current', 'delinquent': 'Delinquent', 'vacant': 'Vacant' };
-    return labels[status] || status || '';
-}
+function filterMaintenance() { renderMaintenanceTable(); }
 
-function formatCurrency(amount) {
-    return '$' + Number(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-}
-
-// ============================================
-// Filtering
-// ============================================
-function filterMaintenance() {
-    renderMaintenanceTable();
-}
-
-// ============================================
-// Modal Handling
-// ============================================
-function openMaintenanceModal(index) {
-    const request = maintenanceData[index];
-    if (!request) return;
-
-    document.getElementById('request-index').value = index;
-    document.getElementById('request-rowIndex').value = request._rowIndex || '';
-    document.getElementById('request-status').value = getStatus(request) || 'New';
-    document.getElementById('landlord-notes').value = getLandlordNotes(request);
-
+// ================================================================
+// Modal
+// ================================================================
+function openModal(idx) {
+    var r = maintenanceData[idx];
+    if (!r) return;
+    document.getElementById('req-index').value = idx;
+    document.getElementById('req-rowIndex').value = RI(r);
+    document.getElementById('req-status').value = S(r) || 'New';
+    document.getElementById('req-notes').value = LN(r);
     document.getElementById('maintenance-modal').classList.add('active');
 }
 
@@ -327,32 +223,27 @@ function closeModal() {
     document.getElementById('maintenance-modal').classList.remove('active');
 }
 
-async function saveMaintenanceUpdate(event) {
-    event.preventDefault();
+function saveUpdate(e) {
+    e.preventDefault();
+    var idx = parseInt(document.getElementById('req-index').value);
+    var rowIdx = document.getElementById('req-rowIndex').value;
+    var status = document.getElementById('req-status').value;
+    var notes = document.getElementById('req-notes').value;
 
-    const rowIndex = document.getElementById('request-rowIndex').value;
-    const status   = document.getElementById('request-status').value;
-    const notes    = document.getElementById('landlord-notes').value;
-    const index    = parseInt(document.getElementById('request-index').value);
-
-    // Update local state
-    if (!isNaN(index) && maintenanceData[index]) {
-        maintenanceData[index].Status = status;
-        maintenanceData[index]['Landlord Notes'] = notes;
+    if (!isNaN(idx) && maintenanceData[idx]) {
+        maintenanceData[idx].Status = status;
+        maintenanceData[idx]['Landlord Notes'] = notes;
     }
 
-    // Persist to Google Sheet
-    if (settings.scriptUrl && rowIndex) {
-        const body = 'formType=updateMaintenance&rowIndex=' + encodeURIComponent(rowIndex) +
-            '&status=' + encodeURIComponent(status) +
-            '&landlordNotes=' + encodeURIComponent(notes);
-
+    if (settings.scriptUrl && rowIdx) {
+        var body = 'formType=updateMaintenance&rowIndex=' + encodeURIComponent(rowIdx) +
+                   '&status=' + encodeURIComponent(status) +
+                   '&landlordNotes=' + encodeURIComponent(notes);
         fetch(settings.scriptUrl, {
-            method: 'POST',
-            mode: 'no-cors',
+            method: 'POST', mode: 'no-cors',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: body
-        }).catch(err => console.warn('Sheet update failed:', err));
+        });
     }
 
     closeModal();
@@ -360,12 +251,12 @@ async function saveMaintenanceUpdate(event) {
     renderMaintenanceStats();
 }
 
-// ============================================
+// ================================================================
 // Settings
-// ============================================
+// ================================================================
 function openSettings() {
-    document.getElementById('script-url').value = settings.scriptUrl;
-    document.getElementById('property-name').value = settings.propertyName;
+    document.getElementById('set-url').value = settings.scriptUrl;
+    document.getElementById('set-name').value = settings.propertyName;
     document.getElementById('settings-modal').classList.add('active');
 }
 
@@ -373,104 +264,60 @@ function closeSettings() {
     document.getElementById('settings-modal').classList.remove('active');
 }
 
-function saveSettings(event) {
-    event.preventDefault();
-
-    settings.scriptUrl    = document.getElementById('script-url').value.trim();
-    settings.propertyName = document.getElementById('property-name').value.trim();
-
+function saveSettings(e) {
+    e.preventDefault();
+    settings.scriptUrl = document.getElementById('set-url').value.trim();
+    settings.propertyName = document.getElementById('set-name').value.trim();
     localStorage.setItem('restEasySettings', JSON.stringify(settings));
-    document.querySelector('.property-name').textContent = settings.propertyName;
-
+    document.querySelectorAll('.property-name').forEach(function(el) { el.textContent = settings.propertyName; });
     closeSettings();
     loadData();
 }
 
 function loadSettings() {
-    const saved = localStorage.getItem('restEasySettings');
-    if (saved) {
-        try {
-            settings = { ...settings, ...JSON.parse(saved) };
-            document.querySelector('.property-name').textContent = settings.propertyName;
-        } catch (e) { /* ignore */ }
+    var s = localStorage.getItem('restEasySettings');
+    if (s) {
+        try { settings = JSON.parse(s); } catch(e) {}
+    }
+    if (settings.propertyName) {
+        document.querySelectorAll('.property-name').forEach(function(el) { el.textContent = settings.propertyName; });
     }
 }
 
 function updateConnectionStatus(connected) {
-    const statusEl = document.getElementById('connection-status');
-    if (!statusEl) return;
-    const dotEl = statusEl.querySelector('.status-dot');
-    const textEl = statusEl.querySelector('.status-text');
-    if (connected) {
-        statusEl.classList.add('connected');
-        if (dotEl) dotEl.style.background = '#059669';
-        if (textEl) textEl.textContent = 'Connected';
-    } else {
-        statusEl.classList.remove('connected');
-        if (dotEl) dotEl.style.background = '#D97706';
-        if (textEl) textEl.textContent = 'Demo Mode';
-    }
+    var el = document.getElementById('connection-status');
+    if (!el) return;
+    el.querySelector('.status-text').textContent = connected ? 'Connected' : 'Demo Mode';
+    el.querySelector('.status-dot').style.background = connected ? '#059669' : '#D97706';
 }
 
 function updateTimestamp() {
-    const el = document.getElementById('last-updated');
-    if (el) el.textContent = new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    var el = document.getElementById('last-updated');
+    if (el) el.textContent = new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
-// ============================================
-// Actions
-// ============================================
-async function refreshData() {
-    await loadData();
-}
+function refreshData() { loadData(); }
 
+// ================================================================
+// Export
+// ================================================================
 function exportCSV() {
-    const fd = financialData;
-    let csv = 'REST EASY PROPERTY MANAGEMENT - Financial Summary\n\n';
-
-    csv += 'RENT COLLECTION\n';
-    csv += 'Expected This Month,' + (fd.rentExpected || 0) + '\n';
-    csv += 'Collected,' + (fd.rentCollected || 0) + '\n';
-    csv += 'Outstanding,' + ((fd.rentExpected || 0) - (fd.rentCollected || 0)) + '\n\n';
-
-    csv += 'INCOME & EXPENSES\n';
-    csv += 'Total Income,' + (fd.monthIncome || 0) + '\n';
-    csv += 'Total Expenses,' + (fd.monthExpenses || 0) + '\n';
-    csv += 'Net Cash Flow,' + (fd.netCashflow || 0) + '\n\n';
-
-    csv += 'BY UNIT\n';
-    csv += 'Unit,Tenant,Monthly Rent,Collected,Outstanding,Status\n';
-    (fd.units || []).forEach(u => {
-        csv += `${u.unit || ''},${u.tenant || ''},${u.rent || 0},${u.collected || 0},${u.outstanding || 0},${statusLabel(u.status)}\n`;
+    var fd = financialData;
+    var csv = 'REST EASY — Financial Summary\n\n';
+    csv += 'RENT COLLECTION\nExpected,' + (fd.rentExpected||0) + '\nCollected,' + (fd.rentCollected||0) + '\nOutstanding,' + ((fd.rentExpected||0)-(fd.rentCollected||0)) + '\n\n';
+    csv += 'INCOME & EXPENSES\nIncome,' + (fd.monthIncome||0) + '\nExpenses,' + (fd.monthExpenses||0) + '\nNet,' + (fd.netCashflow||0) + '\n\n';
+    csv += 'BY UNIT\nUnit,Tenant,Rent,Collected,Outstanding,Status\n';
+    (fd.units||[]).forEach(function(u){ csv += (u.unit||'')+','+(u.tenant||'')+','+(u.rent||0)+','+(u.collected||0)+','+(u.outstanding||0)+','+(u.status||'')+'\n'; });
+    csv += '\nMAINTENANCE\nTimestamp,Unit,Category,Urgency,Status,Description,Tenant,Email,Phone,Notes\n';
+    maintenanceData.forEach(function(m){
+        csv += '"'+(TS(m)||'').replace(/"/g,'""')+'","'+(UN(m)||'').replace(/"/g,'""')+'","'+(CAT(m)||'').replace(/"/g,'""')+'","'+(U(m)||'').replace(/"/g,'""')+'","'+(S(m)||'').replace(/"/g,'""')+'","'+(DES(m)||'').replace(/"/g,'""')+'","'+(TN(m)||'').replace(/"/g,'""')+'","'+(TE(m)||'').replace(/"/g,'""')+'","'+(TP(m)||'').replace(/"/g,'""')+'","'+(LN(m)||'').replace(/"/g,'""')+'"\n';
     });
-
-    csv += '\nMAINTENANCE REQUESTS\n';
-    csv += 'Timestamp,Unit,Category,Urgency,Status,Description,Tenant,Email,Phone,Notes\n';
-    maintenanceData.forEach(m => {
-        csv += `"${getTimestamp(m)}","${getUnit(m)}","${getCategory(m)}","${getUrgency(m)}","${getStatus(m)}","${getDescription(m)}","${getTenantName(m)}","${getTenantEmail(m)}","${getTenantPhone(m)}","${getLandlordNotes(m)}"\n`;
-    });
-
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `rest-easy-export-${new Date().toISOString().split('T')[0]}.csv`;
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+    a.download = 'rest-easy-export.csv';
     a.click();
-    URL.revokeObjectURL(url);
 }
 
-// ============================================
-// Keyboard & backdrop close
-// ============================================
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        closeModal();
-        closeSettings();
-    }
-});
-
-document.querySelectorAll('.modal').forEach(modal => {
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.classList.remove('active');
-    });
-});
+// Close modals on Escape / backdrop click
+document.addEventListener('keydown', function(e) { if (e.key==='Escape') { closeModal(); closeSettings(); } });
+document.querySelectorAll('.modal').forEach(function(m) { m.addEventListener('click', function(e){ if(e.target===m) m.classList.remove('active'); }); });
