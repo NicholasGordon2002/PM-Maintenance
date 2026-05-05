@@ -65,8 +65,8 @@ async function loadFromGoogleSheets() {
         if (response.ok) {
             const data = await response.json();
             maintenanceData = data.maintenance || [];
-            financialData = data.summary || {};
-            unitsData = data.units || [];
+            financialData  = data.summary || {};   // summary has rentExpected/rentCollected/netCashflow/units
+            unitsData     = data.units || [];
             updateConnectionStatus(true);
         } else {
             throw new Error('Failed to fetch');
@@ -239,23 +239,23 @@ function renderMaintenanceTable() {
         filtered = filtered.filter(r => r.urgency === urgencyFilter);
     }
     
-    tbody.innerHTML = filtered.map(request => `
+    tbody.innerHTML = filtered.map((request, idx) => `
         <tr>
-            <td>${request.timestamp}</td>
-            <td><strong>${request.unit}</strong></td>
-            <td>${request.category}</td>
-            <td><span class="urgency-badge ${request.urgency.toLowerCase()}">${request.urgency}</span></td>
-            <td><span class="status-badge ${statusToClass(request.status)}">${request.status}</span></td>
-            <td><div class="description-cell" title="${request.description}">${truncate(request.description, 50)}</div></td>
+            <td>${request.Timestamp || request.timestamp}</td>
+            <td><strong>${request['Unit Number'] || request.unit}</strong></td>
+            <td>${request.Category || request.category}</td>
+            <td><span class="urgency-badge ${(request.Urgency || request.urgency || '').toLowerCase()}">${request.Urgency || request.urgency}</span></td>
+            <td><span class="status-badge ${statusToClass(request.Status || request.status)}">${request.Status || request.status}</span></td>
+            <td><div class="description-cell" title="${request.Description || request.description}">${truncate(request.Description || request.description, 50)}</div></td>
             <td>
                 <div class="tenant-info">
-                    <strong>${request.tenantName}</strong>
-                    <span>${request.tenantEmail}</span>
-                    ${request.tenantPhone ? `<span>${request.tenantPhone}</span>` : ''}
+                    <strong>${request['Tenant Name'] || request.tenantName}</strong>
+                    <span>${request['Tenant Email'] || request.tenantEmail}</span>
+                    ${(request['Tenant Phone'] || request.tenantPhone) ? `<span>${request['Tenant Phone'] || request.tenantPhone}</span>` : ''}
                 </div>
             </td>
             <td>
-                <button class="btn-action primary" onclick="openMaintenanceModal('${request.id}')">Update</button>
+                <button class="btn-action primary" onclick="openMaintenanceModal(${maintenanceData.indexOf(request)})">Update</button>
             </td>
         </tr>
     `).join('');
@@ -369,14 +369,17 @@ function filterMaintenance() {
 // ============================================
 // Modal Handling
 // ============================================
-function openMaintenanceModal(id) {
-    const request = maintenanceData.find(r => r.id === id);
+function openMaintenanceModal(index) {
+    // index is the array index in maintenanceData (works for both demo and live sheet data)
+    const request = maintenanceData[index];
     if (!request) return;
-    
-    document.getElementById('request-id').value = id;
-    document.getElementById('request-status').value = request.status;
-    document.getElementById('landlord-notes').value = request.landlordNotes || '';
-    
+
+    document.getElementById('request-index').value = index;
+    document.getElementById('request-timestamp').value = request.Timestamp || request.timestamp || '';
+    document.getElementById('request-unit').value = request['Unit Number'] || request.unit || '';
+    document.getElementById('request-status').value = request.Status || request.status || 'New';
+    document.getElementById('landlord-notes').value = request['Landlord Notes'] || request.landlordNotes || '';
+
     document.getElementById('maintenance-modal').classList.add('active');
 }
 
@@ -386,36 +389,44 @@ function closeModal() {
 
 async function saveMaintenanceUpdate(event) {
     event.preventDefault();
-    
-    const id = document.getElementById('request-id').value;
+
+    const timestamp = document.getElementById('request-timestamp').value;
+    const unit = document.getElementById('request-unit').value;
     const status = document.getElementById('request-status').value;
     const notes = document.getElementById('landlord-notes').value;
-    
+
     // Update local data
-    const request = maintenanceData.find(r => r.id === id);
-    if (request) {
-        request.status = status;
-        request.landlordNotes = notes;
+    const index = parseInt(document.getElementById('request-index').value);
+    if (!isNaN(index) && maintenanceData[index]) {
+        maintenanceData[index].Status = status;
+        maintenanceData[index]['Landlord Notes'] = notes;
     }
-    
+
     // If Google Sheets integration is set up, update there
     if (settings.scriptUrl) {
         try {
+            var formData = new FormData();
+            formData.append('formType', 'updateMaintenance');
+            formData.append('timestamp', timestamp);
+            formData.append('unit', unit);
+            formData.append('status', status);
+            formData.append('landlordNotes', notes);
+
+            var body = '';
+            for (var pair of formData.entries()) {
+                body += encodeURIComponent(pair[0]) + '=' + encodeURIComponent(pair[1]) + '&';
+            }
+
             await fetch(settings.scriptUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'updateMaintenance',
-                    id: id,
-                    status: status,
-                    landlordNotes: notes
-                })
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: body
             });
         } catch (error) {
             console.warn('Failed to update Google Sheet:', error);
         }
     }
-    
+
     closeModal();
     renderMaintenanceTable();
     renderMaintenanceStats();
