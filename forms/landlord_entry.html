@@ -41,7 +41,7 @@
             <strong>Enter positive amounts for income (e.g., rent received).</strong>
             Use negative amounts for expenses (e.g., -150 for a $150 repair).
         </div>
-        <form id="financialForm" action="https://script.google.com/macros/s/AKfycbyrtC7wRUi2dYCPRlk1cWqNvg8rsam5UZjScpjTqC4dy0yWfb-d9qkQixiAtfYAGVc-sw/exec" method="POST">
+        <form id="financialForm" action="https://script.google.com/macros/s/AKfycbwIaX167KxvK2liDqKJg83vD6AXS24Qtx7it_-NXD2Zx9e-6nCmmW6cq5wC3XcpG5b4Ag/exec" method="POST">
             <input type="hidden" name="formType" value="financial">
 
             <div class="form-group">
@@ -107,6 +107,8 @@
         <div class="success-msg">
             <h3>✓ Transaction Recorded</h3>
             <p>Your financial entry has been saved to the spreadsheet.</p>
+            <p style="margin-top:12px;">You will be redirected shortly...</p>
+            <a href="https://YOUR_GITHUB_PAGES_URL/dashboard/" class="btn" style="margin-top:16px; display:inline-block; text-align:center; text-decoration:none;">Return to Dashboard</a>
         </div>
     </div>
 
@@ -132,14 +134,9 @@
             body: body
         })
         .then(function(response) {
-            if (response.ok) {
-                document.getElementById('form-container').style.display = 'none';
-                document.getElementById('success-container').style.display = 'block';
-            } else {
-                alert('Recording failed. Please try again.');
-                btn.disabled = false;
-                btn.textContent = 'Record Transaction';
-            }
+            document.getElementById('form-container').style.display = 'none';
+            document.getElementById('success-container').style.display = 'block';
+            setTimeout(function() { window.location.href = 'https://YOUR_GITHUB_PAGES_URL/dashboard/'; }, 3000);
         })
         .catch(function() {
             alert('Recording failed. Please try again.');
