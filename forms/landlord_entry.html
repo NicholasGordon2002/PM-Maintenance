@@ -3,112 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Landlord Financial Entry - Rest Easy</title>
+    <title>Financial Entry - Rest Easy</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f0f4f8;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            padding: 20px;
-        }
-        .container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            max-width: 500px;
-            width: 100%;
-            border-top: 5px solid #27ae60;
-        }
-        h1 {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            color: #27ae60;
-            text-align: center;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-        input[type="text"],
-        input[type="number"],
-        input[type="date"],
-        select,
-        textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        textarea {
-            height: 80px;
-            resize: vertical;
-        }
-        .btn {
-            background-color: #27ae60;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 1rem;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        .btn:hover {
-            background-color: #219150;
-        }
-        .footer {
-            margin-top: 20px;
-            font-size: 0.8rem;
-            text-align: center;
-            color: #7f8c8d;
-        }
-        .note {
-            font-size: 0.85rem;
-            color: #666;
-            margin-bottom: 15px;
-            padding: 10px;
-            background-color: #e8f5e9;
-            border-radius: 4px;
-        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f4f8; color: #333; display: flex; justify-content: center; padding: 20px; min-height: 100vh; align-items: center; }
+        .container { background: #fff; padding: 32px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); max-width: 520px; width: 100%; border-top: 5px solid #059669; }
+        .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; font-size: 1.1rem; font-weight: 700; color: #059669; }
+        .logo svg { width: 32px; height: 32px; }
+        h1 { font-size: 1.4rem; margin-bottom: 6px; color: #1e293b; }
+        .subtitle { font-size: 0.875rem; color: #64748b; margin-bottom: 24px; }
+        .info-box { background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 6px; padding: 12px 14px; font-size: 0.875rem; color: #065f46; margin-bottom: 20px; }
+        .info-box strong { display: block; margin-bottom: 2px; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.875rem; color: #374151; }
+        input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem; transition: border-color 0.15s; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #059669; box-shadow: 0 0 0 3px rgba(5,150,105,0.1); }
+        textarea { height: 80px; resize: vertical; }
+        .btn { background: #059669; color: white; padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-size: 1rem; font-weight: 600; margin-top: 8px; transition: background 0.15s; }
+        .btn:hover { background: #047857; }
+        .btn:disabled { background: #9ca3af; cursor: not-allowed; }
+        .success-msg { display: none; background: #ecfdf5; border: 1px solid #10b981; border-radius: 6px; padding: 16px; color: #065f46; font-size: 0.95rem; text-align: center; }
+        .success-msg h3 { font-size: 1.1rem; margin-bottom: 6px; }
+        .required { color: #dc2626; }
+        .amount-hint { font-size: 0.8rem; color: #64748b; margin-top: 4px; }
+        @media (max-width: 480px) { .container { padding: 20px; } }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Financial Entry</h1>
-        <div class="note">
-            Use this form to record income (rent) and expenses. 
-            <strong>Positive</strong> amounts for income, <strong>negative</strong> for expenses.
+    <div class="container" id="form-container">
+        <div class="logo">
+            <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#059669"/><path d="M8 20V12L16 8L24 12V20L16 24L8 20Z" fill="white" fill-opacity="0.9"/><path d="M16 8V24M8 12L24 20M24 12L8 20" stroke="white" stroke-width="1.5" stroke-opacity="0.4"/></svg>
+            Rest Easy — Landlord Portal
         </div>
-        <form action="https://script.google.com/macros/s/AKfycbwIaX167KxvK2liDqKJg83vD6AXS24Qtx7it_-NXD2Zx9e-6nCmmW6cq5wC3XcpG5b4Ag/exec" method="POST">
+        <h1>Financial Entry</h1>
+        <p class="subtitle">Record income or expenses for this property.</p>
+        <div class="info-box">
+            <strong>Enter positive amounts for income (e.g., rent received).</strong>
+            Use negative amounts for expenses (e.g., -150 for a $150 repair).
+        </div>
+        <form id="financialForm" action="https://script.google.com/macros/s/AKfycbwIaX167KxvK2liDqKJg83vD6AXS24Qtx7it_-NXD2Zx9e-6nCmmW6cq5wC3XcpG5b4Ag/exec" method="POST">
+            <input type="hidden" name="formType" value="financial">
+
             <div class="form-group">
-                <label for="date">Date</label>
+                <label for="date">Date <span class="required">*</span></label>
                 <input type="date" id="date" name="date" required>
             </div>
 
             <div class="form-group">
-                <label for="type">Transaction Type</label>
+                <label for="type">Transaction Type <span class="required">*</span></label>
                 <select name="type" id="type" required>
                     <option value="Rent Payment">Rent Payment</option>
                     <option value="Expense">Expense</option>
-                    <option value="Deposit">Deposit</option>
+                    <option value="Deposit">Security Deposit</option>
                     <option value="Refund">Refund</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label for="unitNumber">Unit Number</label>
+                <label for="unitNumber">Unit / Building <span class="required">*</span></label>
                 <select name="unitNumber" id="unitNumber" required>
-                    <option value="All">Building (All Units)</option>
+                    <option value="All">All Units (building-wide)</option>
                     <option value="Unit 1">Unit 1</option>
                     <option value="Unit 2">Unit 2</option>
                     <option value="Unit 3">Unit 3</option>
@@ -117,20 +71,21 @@
             </div>
 
             <div class="form-group">
-                <label for="amount">Amount ($)</label>
+                <label for="amount">Amount ($) <span class="required">*</span></label>
                 <input type="number" id="amount" name="amount" step="0.01" required placeholder="0.00">
+                <p class="amount-hint">Positive for income, negative for expenses. Do not include a $ sign.</p>
             </div>
 
             <div class="form-group">
-                <label for="description">Description</label>
-                <input type="text" id="description" name="description" required placeholder="e.g. October Rent or Plumbing Repair">
+                <label for="description">Description <span class="required">*</span></label>
+                <input type="text" id="description" name="description" required placeholder="e.g. March Rent or HVAC repair">
             </div>
 
             <div class="form-group">
-                <label for="category">Category</label>
+                <label for="category">Category <span class="required">*</span></label>
                 <select name="category" id="category" required>
                     <option value="Rent">Rent</option>
-                    <option value="Maintenance">Maintenance</option>
+                    <option value="Maintenance">Maintenance / Repairs</option>
                     <option value="Utilities">Utilities</option>
                     <option value="Insurance">Insurance</option>
                     <option value="Taxes">Taxes</option>
@@ -141,18 +96,57 @@
 
             <div class="form-group">
                 <label for="notes">Notes</label>
-                <textarea id="notes" name="notes" placeholder="Any additional details..."></textarea>
+                <textarea id="notes" name="notes" placeholder="Any additional reference or notes..."></textarea>
             </div>
 
-            <button type="submit" class="btn">Record Transaction</button>
+            <button type="submit" class="btn" id="submitBtn">Record Transaction</button>
         </form>
-        <div class="footer">
-            Rest Easy Property Management — Landlord Portal
+    </div>
+
+    <div class="container" id="success-container" style="display:none;">
+        <div class="success-msg">
+            <h3>✓ Transaction Recorded</h3>
+            <p>Your financial entry has been saved to the spreadsheet.</p>
         </div>
     </div>
+
     <script>
-        // Set default date to today
-        document.getElementById('date').valueAsDate = new Date();
+    document.getElementById('date').valueAsDate = new Date();
+
+    document.getElementById('financialForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.textContent = 'Recording...';
+
+        var form = document.getElementById('financialForm');
+        var formData = new FormData(form);
+        var body = '';
+        for (var pair of formData.entries()) {
+            body += encodeURIComponent(pair[0]) + '=' + encodeURIComponent(pair[1]) + '&';
+        }
+
+        fetch(form.action, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: body
+        })
+        .then(function(response) {
+            if (response.ok) {
+                document.getElementById('form-container').style.display = 'none';
+                document.getElementById('success-container').style.display = 'block';
+            } else {
+                alert('Recording failed. Please try again.');
+                btn.disabled = false;
+                btn.textContent = 'Record Transaction';
+            }
+        })
+        .catch(function() {
+            alert('Recording failed. Please try again.');
+            btn.disabled = false;
+            btn.textContent = 'Record Transaction';
+        });
+    });
     </script>
 </body>
 </html>
