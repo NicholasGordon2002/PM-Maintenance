@@ -22,8 +22,8 @@
         .btn { background: #059669; color: white; padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-size: 1rem; font-weight: 600; margin-top: 8px; transition: background 0.15s; }
         .btn:hover { background: #047857; }
         .btn:disabled { background: #9ca3af; cursor: not-allowed; }
-        .success-msg { display: none; background: #ecfdf5; border: 1px solid #10b981; border-radius: 6px; padding: 16px; color: #065f46; font-size: 0.95rem; text-align: center; }
-        .success-msg h3 { font-size: 1.1rem; margin-bottom: 6px; }
+        .success-msg { display: none; background: #ecfdf5; border: 1px solid #10b981; border-radius: 6px; padding: 24px; color: #065f46; font-size: 1rem; text-align: center; }
+        .success-msg h3 { font-size: 1.2rem; margin-bottom: 8px; }
         .required { color: #dc2626; }
         .amount-hint { font-size: 0.8rem; color: #64748b; margin-top: 4px; }
         @media (max-width: 480px) { .container { padding: 20px; } }
@@ -41,7 +41,7 @@
             <strong>Enter positive amounts for income (e.g., rent received).</strong>
             Use negative amounts for expenses (e.g., -150 for a $150 repair).
         </div>
-        <form id="financialForm" action="https://script.google.com/macros/s/AKfycbzPM91eAjiebs_kJNuYnEasn2EAUy7Y4NiUvj0R7dkhOiiZsmspE3wVKMx_N6xMRJvaDQ/exec" method="POST">
+        <form id="financialForm">
             <input type="hidden" name="formType" value="financial">
 
             <div class="form-group">
@@ -105,14 +105,17 @@
 
     <div class="container" id="success-container" style="display:none;">
         <div class="success-msg">
-            <h3>✓ Transaction Recorded</h3>
+            <h3>&#10003; Transaction Recorded</h3>
             <p>Your financial entry has been saved to the spreadsheet.</p>
-            <p style="margin-top:12px;">You will be redirected shortly...</p>
-            <a href="https://nicholasgordon2002.github.io/PM-Maintenance/dashboard/" class="btn" style="margin-top:16px; display:inline-block; text-align:center; text-decoration:none;">Return to Dashboard</a>
+            <p style="margin-top:12px;">You will be redirected to the dashboard shortly...</p>
+            <a href="https://nicholasgordon2002.github.io/PM-Maintenance/dashboard/" class="btn" style="margin-top:16px; text-align:center; text-decoration:none;">Return to Dashboard</a>
         </div>
     </div>
 
     <script>
+    var FORM_URL = 'https://script.google.com/macros/s/AKfycbx83OYACWPSJDhWboGgiZaqGkoAekK093edS79GeM1JoUDwvWhmOwJ6tGXxVCXefppheQ/exec';
+    var REDIRECT_URL = 'https://nicholasgordon2002.github.io/PM-Maintenance/dashboard/';
+
     document.getElementById('date').valueAsDate = new Date();
 
     document.getElementById('financialForm').addEventListener('submit', function(e) {
@@ -128,21 +131,19 @@
             body += encodeURIComponent(pair[0]) + '=' + encodeURIComponent(pair[1]) + '&';
         }
 
-        fetch(form.action, {
+        fetch(FORM_URL, {
             method: 'POST',
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: body
-        })
-        .then(function() {
+        }).then(function() {
             document.getElementById('form-container').style.display = 'none';
             document.getElementById('success-container').style.display = 'block';
-            setTimeout(function() { window.location.href = 'https://YOUR_GITHUB_PAGES_URL/dashboard/'; }, 3000);
-        })
-        .catch(function() {
+            setTimeout(function() { window.location.href = REDIRECT_URL; }, 3000);
+        }).catch(function() {
             document.getElementById('form-container').style.display = 'none';
             document.getElementById('success-container').style.display = 'block';
-            setTimeout(function() { window.location.href = 'https://YOUR_GITHUB_PAGES_URL/dashboard/'; }, 3000);
+            setTimeout(function() { window.location.href = REDIRECT_URL; }, 3000);
         });
     });
     </script>
