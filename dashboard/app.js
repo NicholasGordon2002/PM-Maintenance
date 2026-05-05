@@ -375,8 +375,7 @@ function openMaintenanceModal(index) {
     if (!request) return;
 
     document.getElementById('request-index').value = index;
-    document.getElementById('request-timestamp').value = request.Timestamp || request.timestamp || '';
-    document.getElementById('request-unit').value = request['Unit Number'] || request.unit || '';
+    document.getElementById('request-rowIndex').value = request._rowIndex || '';
     document.getElementById('request-status').value = request.Status || request.status || 'New';
     document.getElementById('landlord-notes').value = request['Landlord Notes'] || request.landlordNotes || '';
 
@@ -390,8 +389,7 @@ function closeModal() {
 async function saveMaintenanceUpdate(event) {
     event.preventDefault();
 
-    const timestamp = document.getElementById('request-timestamp').value;
-    const unit = document.getElementById('request-unit').value;
+    const rowIndex = document.getElementById('request-rowIndex').value;
     const status = document.getElementById('request-status').value;
     const notes = document.getElementById('landlord-notes').value;
 
@@ -407,8 +405,7 @@ async function saveMaintenanceUpdate(event) {
         try {
             var formData = new FormData();
             formData.append('formType', 'updateMaintenance');
-            formData.append('timestamp', timestamp);
-            formData.append('unit', unit);
+            formData.append('rowIndex', rowIndex);
             formData.append('status', status);
             formData.append('landlordNotes', notes);
 
@@ -417,8 +414,9 @@ async function saveMaintenanceUpdate(event) {
                 body += encodeURIComponent(pair[0]) + '=' + encodeURIComponent(pair[1]) + '&';
             }
 
-            await fetch(settings.scriptUrl, {
+            fetch(settings.scriptUrl, {
                 method: 'POST',
+                mode: 'no-cors',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: body
             });
