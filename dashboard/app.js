@@ -221,34 +221,90 @@ function openModal(idx) {
 
 function closeModal() {
     document.getElementById('maintenance-modal').classList.remove('active');
+    clearToast();
+}
+
+function showToast(msg, type) {
+    var existing = document.getElementById('toast');
+    if (existing) existing.remove();
+    var toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.style.cssText = 'position:fixed;bottom:24px;right:24px;padding:14px 20px;border-radius:8px;font-size:14px;font-weight:500;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15);';
+    if (type === 'success') {
+        toast.style.background = '#059669'; toast.style.color = '#fff';
+    } else if (type === 'error') {
+        toast.style.background = '#DC2626'; toast.style.color = '#fff';
+    } else {
+        toast.style.background = '#374151'; toast.style.color = '#fff';
+    }
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+}
+
+function clearToast() {
+    var t = document.getElementById('toast');
+    if (t) t.remove();
+}
+
+function setButtonState(btn, label, disabled) {
+    btn.disabled = disabled;
+    btn.textContent = label;
 }
 
 function saveUpdate(e) {
-    e.preventDefault();
+    if (e) e.preventDefault();
     var idx = parseInt(document.getElementById('req-index').value);
     var rowIdx = document.getElementById('req-rowIndex').value;
     var status = document.getElementById('req-status').value;
     var notes = document.getElementById('req-notes').value;
+    // Use getElementById for reliability — querySelector can fail if CSS class differs
+    var btn = document.getElementById('save-changes-btn');
+
+    if (btn) setButtonState(btn, 'Saving…', true);
 
     if (!isNaN(idx) && maintenanceData[idx]) {
         maintenanceData[idx].Status = status;
         maintenanceData[idx]['Landlord Notes'] = notes;
     }
 
-    if (settings.scriptUrl && rowIdx) {
-        var body = 'formType=updateMaintenance&rowIndex=' + encodeURIComponent(rowIdx) +
-                   '&status=' + encodeURIComponent(status) +
-                   '&landlordNotes=' + encodeURIComponent(notes);
-        fetch(settings.scriptUrl, {
-            method: 'POST', mode: 'no-cors',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: body
-        });
+    if (!settings.scriptUrl) {
+        // Demo mode — simulate success locally
+        if (btn) setButtonState(btn, 'Saved', false);
+        showToast('Saved locally (demo mode)', 'info');
+        closeModal();
+        renderMaintenanceTable();
+        renderMaintenanceStats();
+        return;
     }
 
-    closeModal();
-    renderMaintenanceTable();
-    renderMaintenanceStats();
+    var body = 'formType=updateMaintenance&rowIndex=' + encodeURIComponent(rowIdx) +
+               '&status=' + encodeURIComponent(status) +
+               '&landlordNotes=' + encodeURIComponent(notes);
+
+    var didError = false;
+    fetch(settings.scriptUrl, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body
+    }).catch(function(err) {
+        didError = true;
+        console.warn('Update fetch failed:', err);
+    });
+
+    // With no-cors the response is opaque — we cannot read the HTTP status.
+    // Treat as probable success after a short window. This is the best we can do
+    // without a CORS-enabled endpoint.
+    setTimeout(function() {
+        if (btn) setButtonState(btn, 'Save Changes', false);
+        if (!didError) {
+            showToast('Update saved successfully', 'success');
+        } else {
+            showToast('Saved locally — could not reach server', 'error');
+        }
+        closeModal();
+        renderMaintenanceTable();
+        renderMaintenanceStats();
+    }, 800);
 }
 
 // ================================================================
