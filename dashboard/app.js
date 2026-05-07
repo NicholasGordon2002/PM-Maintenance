@@ -3,13 +3,18 @@
 var maintenanceData = [];
 var financialData = {};
 var settings = { scriptUrl: '', propertyName: 'Rest Easy Properties' };
+// *** FIX: flag to block background reloads immediately after a save ***
+var _pauseReload = false;
 
 document.addEventListener('DOMContentLoaded', function() {
     initTabs();
     loadSettings();
     loadData();
     updateTimestamp();
-    setInterval(loadData, 60000);
+    setInterval(function() {
+        // *** FIX: skip the scheduled reload if a save just happened ***
+        if (!_pauseReload) loadData();
+    }, 60000);
 });
 
 function initTabs() {
@@ -64,7 +69,9 @@ function loadDemoData() {
 }
 
 function loadFromGoogleSheets() {
-    fetch(settings.scriptUrl)
+    // *** FIX: append cache-busting timestamp so Google's CDN never serves stale data ***
+    var url = settings.scriptUrl + '?t=' + Date.now();
+    fetch(url)
         .then(function(response) { return response.json(); })
         .then(function(data) {
             maintenanceData = data.maintenance || [];
@@ -221,7 +228,7 @@ function openModal(idx) {
 
 function closeModal() {
     document.getElementById('maintenance-modal').classList.remove('active');
-    clearToast();
+    // Do NOT clearToast() here — toast must survive modal close so the user sees it
 }
 
 function showToast(msg, type) {
@@ -239,6 +246,8 @@ function showToast(msg, type) {
     }
     toast.textContent = msg;
     document.body.appendChild(toast);
+    // Auto-dismiss after 4 seconds
+    setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 4000);
 }
 
 function clearToast() {
@@ -253,58 +262,74 @@ function setButtonState(btn, label, disabled) {
 
 function saveUpdate(e) {
     if (e) e.preventDefault();
-    var idx = parseInt(document.getElementById('req-index').value);
+    var idx    = parseInt(document.getElementById('req-index').value);
     var rowIdx = document.getElementById('req-rowIndex').value;
     var status = document.getElementById('req-status').value;
-    var notes = document.getElementById('req-notes').value;
-    // Use getElementById for reliability — querySelector can fail if CSS class differs
-    var btn = document.getElementById('save-changes-btn');
+    var notes  = document.getElementById('req-notes').value;
+    var btn    = document.getElementById('save-changes-btn');
 
-    if (btn) setButtonState(btn, 'Saving…', true);
+    if (btn) setButtonState(btn, 'Saving\u2026', true);
 
+    // Update local cache immediately so the table reflects changes on re-render
     if (!isNaN(idx) && maintenanceData[idx]) {
         maintenanceData[idx].Status = status;
         maintenanceData[idx]['Landlord Notes'] = notes;
     }
 
+    // Demo mode — no URL configured
     if (!settings.scriptUrl) {
-        // Demo mode — simulate success locally
-        if (btn) setButtonState(btn, 'Saved', false);
-        showToast('Saved locally (demo mode)', 'info');
+        if (btn) setButtonState(btn, 'Save Changes', false);
         closeModal();
+        showToast('Saved locally (demo mode — connect a Sheet to persist)', 'info');
         renderMaintenanceTable();
         renderMaintenanceStats();
         return;
     }
 
-    var body = 'formType=updateMaintenance&rowIndex=' + encodeURIComponent(rowIdx) +
-               '&status=' + encodeURIComponent(status) +
+    var body = 'formType=updateMaintenance' +
+               '&rowIndex='      + encodeURIComponent(rowIdx) +
+               '&status='        + encodeURIComponent(status) +
                '&landlordNotes=' + encodeURIComponent(notes);
 
-    var didError = false;
-    fetch(settings.scriptUrl, {
-        method: 'POST', mode: 'no-cors',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: body
-    }).catch(function(err) {
-        didError = true;
-        console.warn('Update fetch failed:', err);
-    });
+    // *** FIX: block background reloads while save is in flight and briefly after,
+    //     so the sheet write has time to settle before we re-fetch ***
+    _pauseReload = true;
 
-    // With no-cors the response is opaque — we cannot read the HTTP status.
-    // Treat as probable success after a short window. This is the best we can do
-    // without a CORS-enabled endpoint.
-    setTimeout(function() {
+    // Use a CORS-enabled fetch so we can actually read the response.
+    // Apps Script deployed as "Anyone" supports this without extra headers.
+    fetch(settings.scriptUrl, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body:    body
+    })
+    .then(function(response) {
+        return response.text();
+    })
+    .then(function(text) {
         if (btn) setButtonState(btn, 'Save Changes', false);
-        if (!didError) {
-            showToast('Update saved successfully', 'success');
-        } else {
-            showToast('Saved locally — could not reach server', 'error');
-        }
         closeModal();
+        if (text.trim() === 'OK') {
+            showToast('Update saved to Google Sheet \u2713', 'success');
+        } else {
+            showToast('Sheet error: ' + text, 'error');
+            console.warn('Apps Script returned:', text);
+        }
+        // *** FIX: re-render from local cache (already updated above) — do NOT call
+        //     loadData() here. Re-enable background reloads after 10s so the sheet
+        //     has time to settle before the next GET overwrites local state. ***
         renderMaintenanceTable();
         renderMaintenanceStats();
-    }, 800);
+        setTimeout(function() { _pauseReload = false; }, 10000);
+    })
+    .catch(function(err) {
+        if (btn) setButtonState(btn, 'Save Changes', false);
+        closeModal();
+        showToast('Network error — check your connection', 'error');
+        console.error('saveUpdate fetch error:', err);
+        renderMaintenanceTable();
+        renderMaintenanceStats();
+        _pauseReload = false;
+    });
 }
 
 // ================================================================
@@ -352,7 +377,8 @@ function updateTimestamp() {
     if (el) el.textContent = new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
-function refreshData() { loadData(); }
+// *** FIX: manual refresh respects the pause flag too ***
+function refreshData() { if (!_pauseReload) loadData(); }
 
 // ================================================================
 // Export
