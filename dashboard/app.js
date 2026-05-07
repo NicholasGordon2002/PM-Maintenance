@@ -90,7 +90,7 @@ function loadFromGoogleSheets() {
 // ================================================================
 // Helpers
 // ================================================================
-function S(r)   { return r['Status']         || r.status         || ''; }
+function S(r)   { return r['status']         || r.status         || ''; }
 function U(r)   { return r['Urgency']        || r.urgency        || ''; }
 function TS(r)  { return r['Timestamp']      || r.timestamp      || ''; }
 function UN(r)  { return r['Unit Number']    || r.unit           || ''; }
@@ -99,7 +99,7 @@ function DES(r) { return r['Description']    || r.description    || ''; }
 function TN(r)  { return r['Tenant Name']    || r.tenantName     || ''; }
 function TE(r)  { return r['Tenant Email']   || r.tenantEmail    || ''; }
 function TP(r)  { return r['Tenant Phone']   || r.tenantPhone    || ''; }
-function LN(r)  { return r['Landlord Notes'] || r.landlordNotes  || ''; }
+function LN(r)  { return r['landlordNotes'] || r.landlordNotes  || ''; }
 function RI(r)  { return r._rowIndex         || ''; }
 
 function statusClass(s) {
@@ -281,8 +281,8 @@ function saveUpdate(e) {
 
     // *** FIX: update local cache first so re-renders always show new values ***
     if (!isNaN(idx) && maintenanceData[idx]) {
-        maintenanceData[idx]['status']          = status;
-        maintenanceData[idx]['landlordNotes']  = notes;
+        maintenanceData[idx]['Status']          = status;
+        maintenanceData[idx]['Landlord Notes']  = notes;
     }
 
     // Demo mode
