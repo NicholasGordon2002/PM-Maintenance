@@ -3,145 +3,269 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial Entry - Rest Easy</title>
+    <title>Financial Entry — Rest Easy</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f4f8; color: #333; display: flex; justify-content: center; padding: 24px; min-height: 100vh; align-items: center; }
-        .card { background: #fff; padding: 32px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); max-width: 520px; width: 100%; border-top: 5px solid #059669; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f0f4f8; color: #333;
+            display: flex; justify-content: center;
+            padding: 24px; min-height: 100vh; align-items: flex-start;
+        }
+        .card {
+            background: #fff; padding: 32px; border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            max-width: 540px; width: 100%;
+            border-top: 5px solid #059669; margin-top: 24px;
+        }
         .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: 1rem; font-weight: 700; color: #059669; }
         .logo svg { width: 28px; height: 28px; flex-shrink: 0; }
         h1 { font-size: 1.4rem; color: #1e293b; margin-bottom: 4px; }
         .sub { font-size: 0.875rem; color: #64748b; margin-bottom: 20px; }
-        .info { background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 6px; padding: 12px; font-size: 0.875rem; color: #065f46; margin-bottom: 20px; }
-        .info strong { display: block; margin-bottom: 2px; }
-        .form-group { margin-bottom: 14px; }
+        .info { background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 6px; padding: 12px 16px; font-size: 0.875rem; color: #065f46; margin-bottom: 20px; line-height: 1.5; }
+        .row { display: flex; gap: 12px; }
+        .col { flex: 1; min-width: 0; }
+        .form-group { margin-bottom: 16px; }
         label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.875rem; color: #374151; }
-        input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem; font-family: inherit; }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: #059669; box-shadow: 0 0 0 3px rgba(5,150,105,0.1); }
+        input, select, textarea {
+            width: 100%; padding: 10px 12px;
+            border: 1px solid #d1d5db; border-radius: 6px;
+            font-size: 0.95rem; font-family: inherit; color: #111;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none; border-color: #059669;
+            box-shadow: 0 0 0 3px rgba(5,150,105,0.1);
+        }
         textarea { height: 70px; resize: vertical; }
         .hint { font-size: 0.8rem; color: #64748b; margin-top: 3px; }
-        .btn { background: #059669; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-size: 1rem; font-weight: 600; margin-top: 8px; }
-        .btn:hover { background: #047857; }
-        .btn:disabled { background: #9ca3af; cursor: not-allowed; }
-        .success { display: none; background: #ecfdf5; border: 1px solid #10b981; border-radius: 8px; padding: 28px; text-align: center; color: #065f46; }
-        .success h2 { font-size: 1.2rem; margin-bottom: 8px; }
-        .success p { margin-bottom: 16px; }
-        .success a { display: inline-block; background: #059669; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; }
         .required { color: #dc2626; }
-        @media (max-width: 480px) { .card { padding: 20px; } }
+        .btn {
+            background: #059669; color: white; padding: 12px 20px;
+            border: none; border-radius: 6px; cursor: pointer;
+            width: 100%; font-size: 1rem; font-weight: 600; margin-top: 8px;
+            transition: background 0.15s;
+        }
+        .btn:hover:not(:disabled) { background: #047857; }
+        .btn:disabled { background: #9ca3af; cursor: not-allowed; }
+        .error-msg { display: none; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 6px; padding: 12px 16px; margin-top: 12px; color: #991b1b; font-size: 0.875rem; }
+        /* Success screen */
+        .success-card {
+            display: none; background: #fff; padding: 40px 32px;
+            border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            max-width: 540px; width: 100%; text-align: center; margin-top: 24px;
+            border-top: 5px solid #059669;
+        }
+        .success-icon { font-size: 3rem; margin-bottom: 16px; }
+        .success-card h2 { font-size: 1.4rem; color: #065f46; margin-bottom: 8px; }
+        .success-card p { color: #64748b; font-size: 0.95rem; line-height: 1.6; }
+        .success-card .ref { margin-top: 20px; background: #f0fdf4; border-radius: 8px; padding: 12px; font-size: 0.85rem; color: #374151; text-align: left; line-height: 1.8; }
+        .new-entry-btn {
+            display: inline-block; margin-top: 24px; background: #059669;
+            color: white; padding: 10px 24px; border-radius: 6px;
+            text-decoration: none; font-weight: 600; font-size: 0.95rem;
+            border: none; cursor: pointer;
+        }
+        @media (max-width: 480px) { .card, .success-card { padding: 20px; margin-top: 0; } .row { flex-direction: column; } }
     </style>
 </head>
 <body>
+
+    <!-- Form -->
     <div class="card" id="form-card">
         <div class="logo">
-            <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#059669"/><path d="M8 20V12L16 8L24 12V20L16 24L8 20Z" fill="white" fill-opacity="0.9"/><path d="M16 8V24M8 12L24 20M24 12L8 20" stroke="white" stroke-width="1.5" stroke-opacity="0.4"/></svg>
+            <svg viewBox="0 0 32 32" fill="none">
+                <rect width="32" height="32" rx="8" fill="#059669"/>
+                <path d="M8 20V12L16 8L24 12V20L16 24L8 20Z" fill="white" fill-opacity="0.9"/>
+                <path d="M16 8V24M8 12L24 20M24 12L8 20" stroke="white" stroke-width="1.5" stroke-opacity="0.4"/>
+            </svg>
             Rest Easy — Landlord Portal
         </div>
-        <h1>Financial Entry</h1>
-        <p class="sub">Record income or expenses for this property.</p>
+        <h1>Log Financial Entry</h1>
+        <p class="sub">Record rent payments and property expenses.</p>
         <div class="info">
-            <strong>Positive amounts = income</strong> (e.g., rent received)<br>
-            <strong>Negative amounts = expenses</strong> (e.g., -150 for a $150 repair)
+            <strong>Rent received / income:</strong> enter a positive number (e.g. 850)<br>
+            <strong>Expenses / repairs:</strong> enter a negative number (e.g. -150)
         </div>
 
-        <form id="form" novalidate>
-            <input type="hidden" name="formType" value="financial">
-
-            <div class="row" style="display:flex;gap:12px;">
-                <div style="flex:1">
+        <form id="fin-form" novalidate>
+            <div class="row">
+                <div class="col">
                     <div class="form-group">
                         <label>Date <span class="required">*</span></label>
-                        <input type="date" name="date" required>
+                        <input type="date" name="date" id="fin-date" required>
                     </div>
                 </div>
-                <div style="flex:1">
+                <div class="col">
                     <div class="form-group">
-                        <label>Type <span class="required">*</span></label>
-                        <select name="type" required>
-                            <option>Rent Payment</option><option>Expense</option><option>Deposit</option><option>Refund</option>
+                        <label>Transaction Type <span class="required">*</span></label>
+                        <select name="type" id="fin-type" required>
+                            <option>Rent Payment</option>
+                            <option>Expense</option>
+                            <option>Deposit</option>
+                            <option>Refund</option>
+                            <option>Other Income</option>
                         </select>
                     </div>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Unit / Building <span class="required">*</span></label>
-                <select name="unitNumber" required>
-                    <option>All</option><option>Unit 1</option><option>Unit 2</option><option>Unit 3</option><option>Unit 4</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Amount ($) <span class="required">*</span></label>
-                <input type="number" name="amount" step="0.01" required placeholder="0.00">
-                <p class="hint">No $ sign. Positive = income, negative = expense.</p>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label>Unit <span class="required">*</span></label>
+                        <select name="unitNumber" id="fin-unit" required>
+                            <option>All / Building</option>
+                            <option>Unit 1</option>
+                            <option>Unit 2</option>
+                            <option>Unit 3</option>
+                            <option>Unit 4</option>
+                            <option>Unit 5</option>
+                            <option>Unit 6</option>
+                            <option>Unit 7</option>
+                            <option>Unit 8</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label>Amount ($) <span class="required">*</span></label>
+                        <input type="number" name="amount" id="fin-amount" step="0.01" required placeholder="0.00">
+                        <p class="hint">Positive = income · Negative = expense</p>
+                    </div>
+                </div>
             </div>
 
             <div class="form-group">
                 <label>Description <span class="required">*</span></label>
-                <input type="text" name="description" required placeholder="e.g. March Rent or Plumbing repair">
+                <input type="text" name="description" id="fin-description" required placeholder="e.g. April rent - Unit 3, or Plumbing repair">
             </div>
 
             <div class="form-group">
                 <label>Category <span class="required">*</span></label>
-                <select name="category" required>
-                    <option>Rent</option><option>Maintenance</option><option>Utilities</option><option>Insurance</option><option>Taxes</option><option>Management Fee</option><option>Other</option>
+                <select name="category" id="fin-category" required>
+                    <option>Rent</option>
+                    <option>Maintenance</option>
+                    <option>Utilities</option>
+                    <option>Insurance</option>
+                    <option>Taxes</option>
+                    <option>Management Fee</option>
+                    <option>Other</option>
                 </select>
             </div>
 
             <div class="form-group">
                 <label>Notes</label>
-                <textarea name="notes" placeholder="Any additional details..."></textarea>
+                <textarea name="notes" id="fin-notes" placeholder="Optional - payment method, vendor, receipt number, etc."></textarea>
             </div>
 
             <button type="submit" class="btn" id="submit-btn">Record Transaction</button>
+            <div class="error-msg" id="error-msg"></div>
         </form>
     </div>
 
-    <div class="card success" id="success-screen">
-        <h2>&#10003; Transaction Recorded</h2>
-        <p>Your financial entry has been saved to the spreadsheet.</p>
-        <p>Redirecting to dashboard...</p>
-        <a href="https://nicholasgordon2002.github.io/PM-Maintenance/dashboard/">Return to Dashboard</a>
+    <!-- Success screen -->
+    <div class="success-card" id="success-card">
+        <div class="success-icon">✅</div>
+        <h2>Entry Recorded</h2>
+        <p>The transaction has been saved to your Google Sheet.</p>
+        <div class="ref" id="ref-summary"></div>
+        <button class="new-entry-btn" onclick="resetForm()">Log Another Entry</button>
     </div>
 
     <script>
-    // ============================================================
-    // SETUP: Replace YOUR_APPS_SCRIPT_URL with your Apps Script
-    // Web App deployment URL (from Google Apps Script → Deploy)
-    // ============================================================
-    var APP_URL = 'https://script.google.com/macros/s/AKfycbyLDSOJHNa5ElX5ywRSHjgz32kqASXgK1clZaePYUOUo3YksmgfltsWqQknHqD8P_ZBYA/exec';
+    // =============================================================
+    //  CONFIG — paste your Apps Script Web App URL below
+    //  (Extensions → Apps Script → Deploy → Web app → copy URL)
+    // =============================================================
+    var APP_URL = 'https://script.google.com/macros/s/AKfycbzoqtuWJSB3KeVIxKMUia0L3hELvDkkq9Ckl0CcODc3TscrM0uP0G8yx6r_nZqxAoS-kw/exec';
+    // =============================================================
 
-    document.getElementById('date').valueAsDate = new Date();
+    // Default date to today
+    document.getElementById('fin-date').valueAsDate = new Date();
 
-    document.getElementById('form').addEventListener('submit', function(e) {
+    var form   = document.getElementById('fin-form');
+    var btn    = document.getElementById('submit-btn');
+    var errMsg = document.getElementById('error-msg');
+
+    form.addEventListener('submit', function(e) {
         e.preventDefault();
-        var btn = document.getElementById('submit-btn');
-        btn.disabled = true;
-        btn.textContent = 'Recording...';
+        errMsg.style.display = 'none';
 
-        var form = document.getElementById('form');
-        var body = '';
-        var fd = new FormData(form);
-        for (var pair of fd.entries()) {
-            body += encodeURIComponent(pair[0]) + '=' + encodeURIComponent(pair[1]) + '&';
+        var amount = parseFloat(document.getElementById('fin-amount').value);
+        if (!document.getElementById('fin-description').value.trim()) {
+            showError('Please enter a description.');
+            return;
+        }
+        if (isNaN(amount) || amount === 0) {
+            showError('Please enter a valid non-zero amount.');
+            return;
         }
 
+        btn.disabled    = true;
+        btn.textContent = 'Recording...';
+
+        var params = {
+            formType:    'financial',
+            date:        document.getElementById('fin-date').value,
+            type:        document.getElementById('fin-type').value,
+            unitNumber:  document.getElementById('fin-unit').value,
+            amount:      amount,
+            description: document.getElementById('fin-description').value,
+            category:    document.getElementById('fin-category').value,
+            notes:       document.getElementById('fin-notes').value
+        };
+        var body = Object.keys(params).map(function(k) {
+            return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+        }).join('&');
+
         fetch(APP_URL, {
-            method: 'POST',
-            mode: 'no-cors',
+            method:  'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: body
-        }).then(function() {
-            document.getElementById('form-card').style.display = 'none';
-            document.getElementById('success-screen').style.display = 'block';
-            setTimeout(function() { window.location.href = 'https://nicholasgordon2002.github.io/PM-Maintenance/dashboard/'; }, 3000);
-        }).catch(function() {
-            document.getElementById('form-card').style.display = 'none';
-            document.getElementById('success-screen').style.display = 'block';
-            setTimeout(function() { window.location.href = 'https://nicholasgordon2002.github.io/PM-Maintenance/dashboard/'; }, 3000);
+            body:    body
+        })
+        .then(function(res) { return res.text(); })
+        .then(function(text) {
+            if (text.trim() === 'OK') {
+                showSuccess(params);
+            } else {
+                showError('Server error: ' + text + '. Please try again.');
+                btn.disabled    = false;
+                btn.textContent = 'Record Transaction';
+            }
+        })
+        .catch(function(err) {
+            console.error('Submission error:', err);
+            showError('Could not connect. Check your internet connection and try again.');
+            btn.disabled    = false;
+            btn.textContent = 'Record Transaction';
         });
     });
+
+    function showSuccess(p) {
+        document.getElementById('form-card').style.display    = 'none';
+        document.getElementById('success-card').style.display = 'block';
+        var sign = p.amount >= 0 ? '+' : '';
+        document.getElementById('ref-summary').innerHTML =
+            '<strong>Type:</strong> ' + p.type + '<br>' +
+            '<strong>Unit:</strong> ' + p.unitNumber + '<br>' +
+            '<strong>Amount:</strong> ' + sign + '$' + Math.abs(p.amount).toFixed(2) + '<br>' +
+            '<strong>Description:</strong> ' + p.description + '<br>' +
+            '<strong>Date:</strong> ' + p.date;
+    }
+
+    function showError(msg) {
+        errMsg.textContent   = msg;
+        errMsg.style.display = 'block';
+    }
+
+    function resetForm() {
+        form.reset();
+        document.getElementById('fin-date').valueAsDate = new Date();
+        btn.disabled    = false;
+        btn.textContent = 'Record Transaction';
+        document.getElementById('success-card').style.display = 'none';
+        document.getElementById('form-card').style.display    = 'block';
+    }
     </script>
 </body>
 </html>
