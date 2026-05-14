@@ -3,50 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maintenance Request - Rest Easy</title>
+    <title>Maintenance Request — Rest Easy</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f7f6; color: #333; display: flex; justify-content: center; padding: 24px; min-height: 100vh; align-items: center; }
-        .card { background: #fff; padding: 32px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); max-width: 520px; width: 100%; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f4f7f6; color: #333;
+            display: flex; justify-content: center;
+            padding: 24px; min-height: 100vh; align-items: flex-start;
+        }
+        .card {
+            background: #fff; padding: 32px; border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            max-width: 540px; width: 100%; margin-top: 24px;
+        }
         .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: 1rem; font-weight: 700; color: #2563EB; }
         .logo svg { width: 28px; height: 28px; flex-shrink: 0; }
         h1 { font-size: 1.4rem; color: #1e293b; margin-bottom: 4px; }
         .sub { font-size: 0.875rem; color: #64748b; margin-bottom: 24px; }
         .row { display: flex; gap: 12px; }
-        .col { flex: 1; }
-        .form-group { margin-bottom: 14px; }
+        .col { flex: 1; min-width: 0; }
+        .form-group { margin-bottom: 16px; }
         label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.875rem; color: #374151; }
-        input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem; font-family: inherit; }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
-        textarea { height: 90px; resize: vertical; }
-        .btn { background: #2563EB; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-size: 1rem; font-weight: 600; margin-top: 8px; }
-        .btn:hover { background: #1d4ed8; }
-        .btn:disabled { background: #9ca3af; cursor: not-allowed; }
-        .success { display: none; background: #ecfdf5; border: 1px solid #10b981; border-radius: 8px; padding: 28px; text-align: center; color: #065f46; }
-        .success h2 { font-size: 1.2rem; margin-bottom: 8px; }
-        .success p { margin-bottom: 16px; }
-        .success a { display: inline-block; background: #2563EB; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; }
+        input, select, textarea {
+            width: 100%; padding: 10px 12px;
+            border: 1px solid #d1d5db; border-radius: 6px;
+            font-size: 0.95rem; font-family: inherit; color: #111;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none; border-color: #2563EB;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+        }
+        textarea { height: 100px; resize: vertical; }
         .required { color: #dc2626; }
-        @media (max-width: 480px) { .card { padding: 20px; } .row { flex-direction: column; } }
+        .btn {
+            background: #2563EB; color: white; padding: 12px 20px;
+            border: none; border-radius: 6px; cursor: pointer;
+            width: 100%; font-size: 1rem; font-weight: 600; margin-top: 8px;
+            transition: background 0.15s;
+        }
+        .btn:hover:not(:disabled) { background: #1d4ed8; }
+        .btn:disabled { background: #9ca3af; cursor: not-allowed; }
+        .error-msg { display: none; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 6px; padding: 12px 16px; margin-top: 12px; color: #991b1b; font-size: 0.875rem; }
+        /* Success screen */
+        .success-card {
+            display: none; background: #fff; padding: 40px 32px;
+            border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            max-width: 540px; width: 100%; text-align: center; margin-top: 24px;
+        }
+        .success-icon { font-size: 3rem; margin-bottom: 16px; }
+        .success-card h2 { font-size: 1.4rem; color: #065f46; margin-bottom: 8px; }
+        .success-card p { color: #64748b; font-size: 0.95rem; line-height: 1.6; }
+        .success-card .ref { margin-top: 20px; background: #f0fdf4; border-radius: 8px; padding: 12px; font-size: 0.85rem; color: #374151; }
+        .new-request-btn {
+            display: inline-block; margin-top: 24px; background: #2563EB;
+            color: white; padding: 10px 24px; border-radius: 6px;
+            text-decoration: none; font-weight: 600; font-size: 0.95rem;
+            border: none; cursor: pointer;
+        }
+        @media (max-width: 480px) { .card, .success-card { padding: 20px; margin-top: 0; } .row { flex-direction: column; } }
     </style>
 </head>
 <body>
+
+    <!-- Form -->
     <div class="card" id="form-card">
         <div class="logo">
-            <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#2563EB"/><path d="M8 20V12L16 8L24 12V20L16 24L8 20Z" fill="white" fill-opacity="0.9"/><path d="M16 8V24M8 12L24 20M24 12L8 20" stroke="white" stroke-width="1.5" stroke-opacity="0.4"/></svg>
+            <svg viewBox="0 0 32 32" fill="none">
+                <rect width="32" height="32" rx="8" fill="#2563EB"/>
+                <path d="M8 20V12L16 8L24 12V20L16 24L8 20Z" fill="white" fill-opacity="0.9"/>
+                <path d="M16 8V24M8 12L24 20M24 12L8 20" stroke="white" stroke-width="1.5" stroke-opacity="0.4"/>
+            </svg>
             Rest Easy Property Management
         </div>
         <h1>Maintenance Request</h1>
-        <p class="sub">Submit a repair or maintenance issue for your unit.</p>
+        <p class="sub">Describe the issue and we'll follow up within 24 hours.</p>
 
-        <form id="form" novalidate>
-            <input type="hidden" name="formType" value="maintenance">
-
+        <form id="maint-form" novalidate>
             <div class="form-group">
                 <label>Unit Number <span class="required">*</span></label>
-                <select name="unitNumber" required>
+                <select name="unitNumber" id="unitNumber" required>
                     <option value="">Select your unit...</option>
-                    <option>Unit 1</option><option>Unit 2</option><option>Unit 3</option><option>Unit 4</option>
+                    <option>Unit 1</option>
+                    <option>Unit 2</option>
+                    <option>Unit 3</option>
+                    <option>Unit 4</option>
+                    <option>Unit 5</option>
+                    <option>Unit 6</option>
+                    <option>Unit 7</option>
+                    <option>Unit 8</option>
                 </select>
             </div>
 
@@ -54,95 +99,159 @@
                 <div class="col">
                     <div class="form-group">
                         <label>Your Name <span class="required">*</span></label>
-                        <input type="text" name="tenantName" required placeholder="Full name">
+                        <input type="text" name="tenantName" id="tenantName" required placeholder="Full name">
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-group">
-                        <label>Your Email <span class="required">*</span></label>
-                        <input type="email" name="tenantEmail" required placeholder="email@example.com">
+                        <label>Email <span class="required">*</span></label>
+                        <input type="email" name="tenantEmail" id="tenantEmail" required placeholder="you@email.com">
                     </div>
                 </div>
             </div>
 
             <div class="form-group">
-                <label>Your Phone</label>
-                <input type="tel" name="tenantPhone" placeholder="555-0123 (optional)">
+                <label>Phone (optional)</label>
+                <input type="tel" name="tenantPhone" id="tenantPhone" placeholder="555-0123">
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label>Issue Category <span class="required">*</span></label>
+                        <select name="category" id="category" required>
+                            <option value="">Select...</option>
+                            <option>Plumbing</option>
+                            <option>Electrical</option>
+                            <option>HVAC</option>
+                            <option>Appliance</option>
+                            <option>Structural</option>
+                            <option>Pest</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label>Urgency <span class="required">*</span></label>
+                        <select name="urgency" id="urgency" required>
+                            <option>Low</option>
+                            <option selected>Medium</option>
+                            <option>High</option>
+                            <option>Emergency</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
             <div class="form-group">
-                <label>Issue Category <span class="required">*</span></label>
-                <select name="category" required>
-                    <option value="">Select category...</option>
-                    <option>Plumbing</option><option>Electrical</option><option>HVAC</option><option>Appliance</option><option>Structural</option><option>Pest</option><option>Other</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Description of Issue <span class="required">*</span></label>
-                <textarea name="description" maxlength="500" required placeholder="Please describe the issue in detail..."></textarea>
-            </div>
-
-            <div class="form-group">
-                <label>Preferred Contact <span class="required">*</span></label>
-                <select name="contactMethod" required>
-                    <option>Email</option><option>Phone</option><option>Either</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Urgency <span class="required">*</span></label>
-                <select name="urgency" required>
-                    <option>Low</option><option selected>Medium</option><option>High</option><option>Emergency</option>
-                </select>
+                <label>Description <span class="required">*</span></label>
+                <textarea name="description" id="description" maxlength="500" required placeholder="Describe the issue in detail - what's happening, where, and when it started."></textarea>
             </div>
 
             <button type="submit" class="btn" id="submit-btn">Submit Request</button>
+            <div class="error-msg" id="error-msg"></div>
         </form>
     </div>
 
-    <div class="card success" id="success-screen">
-        <h2>&#10003; Request Submitted</h2>
-        <p>Your landlord will respond within 24 hours.</p>
-        <p>Redirecting to dashboard...</p>
-        <a href="https://nicholasgordon2002.github.io/PM-Maintenance/dashboard/">Return to Dashboard</a>
+    <!-- Success screen (shown after submission) -->
+    <div class="success-card" id="success-card">
+        <div class="success-icon">✅</div>
+        <h2>Request Submitted</h2>
+        <p>Your landlord has been notified and will respond within <strong>24 hours</strong>.</p>
+        <div class="ref" id="ref-summary"></div>
+        <button class="new-request-btn" onclick="resetForm()">Submit Another Request</button>
     </div>
 
     <script>
-    // ============================================================
-    // SETUP: Replace YOUR_APPS_SCRIPT_URL with your Apps Script
-    // Web App deployment URL (from Google Apps Script → Deploy)
-    // ============================================================
-    var APP_URL = 'https://script.google.com/macros/s/AKfycbyLDSOJHNa5ElX5ywRSHjgz32kqASXgK1clZaePYUOUo3YksmgfltsWqQknHqD8P_ZBYA/exec';
+    // =============================================================
+    //  CONFIG — paste your Apps Script Web App URL below
+    //  (Extensions → Apps Script → Deploy → Web app → copy URL)
+    // =============================================================
+    var APP_URL = 'https://script.google.com/macros/s/AKfycbzoqtuWJSB3KeVIxKMUia0L3hELvDkkq9Ckl0CcODc3TscrM0uP0G8yx6r_nZqxAoS-kw/exec';
+    // =============================================================
 
-    document.getElementById('form').addEventListener('submit', function(e) {
+    var form    = document.getElementById('maint-form');
+    var btn     = document.getElementById('submit-btn');
+    var errMsg  = document.getElementById('error-msg');
+
+    form.addEventListener('submit', function(e) {
         e.preventDefault();
-        var btn = document.getElementById('submit-btn');
-        btn.disabled = true;
-        btn.textContent = 'Submitting...';
+        errMsg.style.display = 'none';
 
-        var form = document.getElementById('form');
-        var body = '';
-        var fd = new FormData(form);
-        for (var pair of fd.entries()) {
-            body += encodeURIComponent(pair[0]) + '=' + encodeURIComponent(pair[1]) + '&';
+        // Basic client-side validation
+        var required = ['unitNumber', 'tenantName', 'tenantEmail', 'category', 'description'];
+        for (var i = 0; i < required.length; i++) {
+            var el = document.getElementById(required[i]);
+            if (!el.value.trim()) {
+                el.focus();
+                showError('Please fill in all required fields.');
+                return;
+            }
         }
 
+        btn.disabled    = true;
+        btn.textContent = 'Submitting...';
+
+        // Build POST body
+        var params = {
+            formType:    'maintenance',
+            unitNumber:  document.getElementById('unitNumber').value,
+            tenantName:  document.getElementById('tenantName').value,
+            tenantEmail: document.getElementById('tenantEmail').value,
+            tenantPhone: document.getElementById('tenantPhone').value,
+            category:    document.getElementById('category').value,
+            urgency:     document.getElementById('urgency').value,
+            description: document.getElementById('description').value
+        };
+        var body = Object.keys(params).map(function(k) {
+            return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+        }).join('&');
+
         fetch(APP_URL, {
-            method: 'POST',
-            mode: 'no-cors',
+            method:  'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: body
-        }).then(function() {
-            document.getElementById('form-card').style.display = 'none';
-            document.getElementById('success-screen').style.display = 'block';
-            setTimeout(function() { window.location.href = 'https://nicholasgordon2002.github.io/PM-Maintenance/dashboard/'; }, 3000);
-        }).catch(function() {
-            document.getElementById('form-card').style.display = 'none';
-            document.getElementById('success-screen').style.display = 'block';
-            setTimeout(function() { window.location.href = 'https://nicholasgordon2002.github.io/PM-Maintenance/dashboard/'; }, 3000);
+            body:    body
+        })
+        .then(function(res) { return res.text(); })
+        .then(function(text) {
+            if (text.trim() === 'OK') {
+                showSuccess(params);
+            } else {
+                showError('Submission failed: ' + text + '. Please try again or contact your landlord directly.');
+                btn.disabled    = false;
+                btn.textContent = 'Submit Request';
+            }
+        })
+        .catch(function(err) {
+            console.error('Submission error:', err);
+            showError('Could not connect to the server. Please check your internet connection and try again.');
+            btn.disabled    = false;
+            btn.textContent = 'Submit Request';
         });
     });
+
+    function showSuccess(params) {
+        document.getElementById('form-card').style.display   = 'none';
+        document.getElementById('success-card').style.display = 'block';
+        document.getElementById('ref-summary').innerHTML =
+            '<strong>Summary:</strong> ' + params.category + ' issue in ' + params.unitNumber +
+            ' (' + params.urgency + ' urgency)<br>' +
+            'Confirmation sent to: ' + params.tenantEmail;
+    }
+
+    function showError(msg) {
+        errMsg.textContent     = msg;
+        errMsg.style.display   = 'block';
+    }
+
+    function resetForm() {
+        form.reset();
+        btn.disabled    = false;
+        btn.textContent = 'Submit Request';
+        document.getElementById('success-card').style.display = 'none';
+        document.getElementById('form-card').style.display    = 'block';
+    }
     </script>
 </body>
 </html>
